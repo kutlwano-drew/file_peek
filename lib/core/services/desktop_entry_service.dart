@@ -79,7 +79,7 @@ class DesktopEntryService {
       );
 
       if (iconInstalled) {
-        buffer.writeln('Icon=file-peek');
+        buffer.writeln('Icon=filepeek');
       }
 
       await desktopFile.writeAsString(
