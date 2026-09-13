@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+    <Product
+        Id="*"
+        Name="File Peek"
+        Language="1033"
+        Version="$(var.AppVersion).0"
+        Manufacturer="Kutlwano P. Maruatona"
+        UpgradeCode="{7E5D5A73-3B1C-4B7E-8A7F-1F2B7C5E9D44}">
+
+        <Package
+            InstallerVersion="500"
+            Compressed="yes"
+            InstallScope="perMachine"
+            Platform="x64" />
+
+        <MajorUpgrade
+            DowngradeErrorMessage="A newer version of File Peek is already installed." />
+
+        <MediaTemplate EmbedCab="yes" />
+
+        <Directory Id="TARGETDIR" Name="SourceDir">
+
+            <Directory
+                Id="ProgramFiles64Folder">
+
+                <Directory
+                    Id="INSTALLFOLDER"
+                    Name="File Peek" />
+
+            </Directory>
+
+        </Directory>
+
+        <Feature
+            Id="Complete"
+            Title="File Peek"
+            Description="Install File Peek."
+            Level="1">
+
+            <ComponentGroupRef Id="AppFiles" />
+
+        </Feature>
+
+    </Product>
+
+</Wix>

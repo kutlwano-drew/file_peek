@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=File Peek
+Comment=Inspect files and project structures
+Exec=file_peek %F
+Icon=file-peek
+Terminal=false
+Type=Application
+Categories=Utility;Development;FileManager;
+StartupNotify=true
+StartupWMClass=file_peek

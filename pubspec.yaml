@@ -1,0 +1,67 @@
+name: file_peek
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  file_picker: ^11.0.2
+  recursive_tree_flutter: ^1.0.4
+  path_provider: ^2.1.6
+  intl: ^0.20.2
+  provider: ^6.1.5+1
+  go_router: ^17.5.0
+  syncfusion_flutter_pdf: ^33.2.13
+  google_fonts: ^8.2.1
+  flutter_highlight: ^0.7.0
+  flutter_localizations:
+    sdk: flutter
+  window_manager: ^0.5.2
+  media_kit: ^1.2.6
+  media_kit_video: ^2.0.1
+  media_kit_libs_linux: ^1.0.4
+  loading_animation_widget: ^1.3.0
+  shared_preferences: ^2.5.5
+  heroicons: ^0.11.0
+  flutter_glow: ^0.3.2
+  sqlite3: ^3.5.2
+  docx_to_text: ^1.0.1
+  flutter_markdown: ^0.7.7+1
+  excel: ^4.0.6
+  country_flags: ^4.1.2
+  pdfrx: ^2.4.5
+  docx_file_viewer: ^0.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+    - assets/images/
+    - assets/fonts/GoogleSans-Regular.ttf
+    - assets/fonts/GoogleSans-Medium.ttf
+    - assets/fonts/GoogleSans-Bold.ttf
+    - assets/fonts/DejaVuSansMono.ttf
+
+flutter_launcher_icons:
+  image_path: "assets/images/filepeek.png"
+
+  windows:
+    generate: true
+    image_path: "assets/images/filepeek.png"
+    icon_size: 256
+
+  macos:
+    generate: true
+    image_path: "assets/images/filepeek.png"

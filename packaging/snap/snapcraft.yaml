@@ -1,0 +1,42 @@
+name: file-peek
+
+base: core22
+
+version: '1.0.0'
+
+summary: Inspect files and project structures
+
+description: |
+  File Peek is a desktop file explorer and inspection application
+  for browsing, previewing, and inspecting files and project structures.
+
+grade: devel
+
+confinement: strict
+
+architectures:
+  - build-on: amd64
+
+apps:
+  file-peek:
+    command: file_peek
+    desktop: gui/file-peek.desktop
+
+    plugs:
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - home
+      - removable-media
+
+parts:
+  file-peek:
+    plugin: dump
+
+    source: file-peek-bundle
+
+    stage-packages:
+      - libgtk-3-0
+      - libblkid1
+      - liblzma5
