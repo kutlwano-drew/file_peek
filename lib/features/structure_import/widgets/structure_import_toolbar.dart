@@ -25,7 +25,7 @@ class StructureImportToolbar extends StatelessWidget {
             child: Text(
               targetPath == null ? 'No target directory selected' : 'Target: $targetPath',
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(color: targetPath == null ? Colors.grey : Colors.green),
+              style: TextStyle(color: targetPath == null ? Colors.grey : Colors.white),
             ),
           ),
           const SizedBox(width: 12),

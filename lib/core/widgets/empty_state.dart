@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../app/theme/app_colors.dart';
+
 import '../../app/theme/app_spacing.dart';
 
 class EmptyState extends StatelessWidget {
@@ -18,18 +18,25 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final foregroundColor = isDark ? Colors.white : Colors.black;
+
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 48, color: Colors.white),
+            Icon(
+              icon,
+              size: 48,
+              color: foregroundColor,
+            ),
             const SizedBox(height: AppSpacing.md),
             Text(
               message,
-              style: const TextStyle(
-                color: AppColors.textPrimary,
+              style: TextStyle(
+                color: foregroundColor,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),
@@ -39,8 +46,8 @@ class EmptyState extends StatelessWidget {
               const SizedBox(height: AppSpacing.xs),
               Text(
                 subMessage!,
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: foregroundColor,
                   fontSize: 12,
                 ),
                 textAlign: TextAlign.center,

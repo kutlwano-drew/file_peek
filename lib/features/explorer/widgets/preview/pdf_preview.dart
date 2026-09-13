@@ -1,5 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:pdfrx/pdfrx.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class PdfPreview extends StatefulWidget {
   final String path;
@@ -23,14 +25,24 @@ class _PdfPreviewState extends State<PdfPreview> {
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return PdfViewer.file(
-      widget.path,
+    return SfPdfViewer.file(
+      File(widget.path),
       controller: _controller,
-      params: const PdfViewerParams(
-        maxScale: 4.0,
-        minScale: 0.5,
-      ),
+      pageLayoutMode: PdfPageLayoutMode.continuous,
+      scrollDirection: PdfScrollDirection.vertical,
+      enableDoubleTapZooming: true,
+      enableTextSelection: true,
+      interactionMode: PdfInteractionMode.selection,
+      canShowScrollHead: true,
+      canShowScrollStatus: true,
+      pageSpacing: 18,
     );
   }
 }

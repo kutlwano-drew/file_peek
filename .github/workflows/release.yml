@@ -41,6 +41,7 @@ jobs:
             libgtk-3-dev \
             libblkid-dev \
             liblzma-dev \
+            libmpv-dev \
             ruby-dev \
             build-essential \
             rpm \
@@ -52,6 +53,10 @@ jobs:
         run: |
           sudo gem install --no-document fpm
 
+      - name: Install Snapcraft
+        run: |
+          sudo snap install snapcraft --classic
+
       - name: Get dependencies
         run: flutter pub get
 
@@ -61,7 +66,11 @@ jobs:
           dart --version
 
       - name: Build Linux
-        run: flutter build linux --release --build-name "${{ env.APP_VERSION }}" --build-number 1
+        run: |
+          flutter build linux \
+            --release \
+            --build-name "${{ env.APP_VERSION }}" \
+            --build-number 1
 
       - name: Package Linux
         env:
@@ -100,7 +109,11 @@ jobs:
           dart --version
 
       - name: Build Windows
-        run: flutter build windows --release --build-name "${{ env.APP_VERSION }}" --build-number 1
+        run: |
+          flutter build windows \
+            --release \
+            --build-name "${{ env.APP_VERSION }}" \
+            --build-number 1
 
       - name: Prepare Windows package directory
         shell: pwsh
@@ -371,7 +384,7 @@ jobs:
 
       - name: Show release files
         run: |
-          find dist -type f -maxdepth 3 -print
+          find dist -maxdepth 3 -type f -print
 
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v3

@@ -96,16 +96,14 @@ class _PreviewHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 11, 12, 11),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.65),
+      decoration: const BoxDecoration(
+        color: Colors.black,
         border: Border(
           bottom: BorderSide(
-            color: theme.colorScheme.outlineVariant.withOpacity(0.65),
+            color: Colors.white24,
           ),
         ),
       ),
@@ -116,13 +114,13 @@ class _PreviewHeader extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withOpacity(0.12),
+              color: Colors.white12,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               _iconForType(type),
               size: 18,
-              color: theme.colorScheme.primary,
+              color: Colors.white,
             ),
           ),
           const SizedBox(width: 12),
@@ -137,6 +135,7 @@ class _PreviewHeader extends StatelessWidget {
                         node.name,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
+                          color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                         ),
@@ -149,16 +148,11 @@ class _PreviewHeader extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withOpacity(0.12),
+                        color: Colors.white12,
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      child: Text(
-                        type.label,
-                        style: TextStyle(
-                          color: theme.colorScheme.primary,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: const Text(
+                        '',
                       ),
                     ),
                   ],
@@ -168,8 +162,8 @@ class _PreviewHeader extends StatelessWidget {
                   node.path,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: theme.colorScheme.onSurfaceVariant,
+                  style: const TextStyle(
+                    color: Colors.white70,
                     fontSize: 11,
                     height: 1.25,
                   ),
@@ -212,7 +206,6 @@ class _PreviewHeader extends StatelessWidget {
     }
   }
 }
-
 // =============================================================================
 // COPY BUTTON
 // =============================================================================

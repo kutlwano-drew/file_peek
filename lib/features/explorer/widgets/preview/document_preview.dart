@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdfrx/pdfrx.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class DocumentPreview extends StatefulWidget {
   final String path;
@@ -220,7 +220,6 @@ class _DocumentPreviewState extends State<DocumentPreview> {
       'libreoffice',
     ];
 
-    // First try PATH.
     for (final executable in candidates) {
       final found = await _findExecutableInPath(executable);
 
@@ -229,7 +228,6 @@ class _DocumentPreviewState extends State<DocumentPreview> {
       }
     }
 
-    // Common Linux installation locations.
     const locations = <String>[
       '/usr/bin/soffice',
       '/usr/local/bin/soffice',
@@ -253,7 +251,6 @@ class _DocumentPreviewState extends State<DocumentPreview> {
       'libreoffice.exe',
     ];
 
-    // Try PATH first.
     for (final executable in candidates) {
       final found = await _findExecutableInPath(executable);
 
@@ -262,12 +259,9 @@ class _DocumentPreviewState extends State<DocumentPreview> {
       }
     }
 
-    // Standard LibreOffice installation locations.
     final programFiles = Platform.environment['PROGRAMFILES'];
-    final programFilesX86 =
-        Platform.environment['PROGRAMFILES(X86)'];
-    final localAppData =
-        Platform.environment['LOCALAPPDATA'];
+    final programFilesX86 = Platform.environment['PROGRAMFILES(X86)'];
+    final localAppData = Platform.environment['LOCALAPPDATA'];
 
     final locations = <String>[
       if (programFiles != null)
@@ -288,7 +282,6 @@ class _DocumentPreviewState extends State<DocumentPreview> {
   }
 
   Future<String?> _findLibreOfficeMacOS() async {
-    // Try PATH first.
     const candidates = <String>[
       'soffice',
       'libreoffice',
@@ -302,7 +295,6 @@ class _DocumentPreviewState extends State<DocumentPreview> {
       }
     }
 
-    // Standard macOS LibreOffice application location.
     const locations = <String>[
       '/Applications/LibreOffice.app/Contents/MacOS/soffice',
       '/Applications/LibreOffice.app/Contents/MacOS/python',
@@ -314,7 +306,6 @@ class _DocumentPreviewState extends State<DocumentPreview> {
       }
     }
 
-    // Also check the user's Applications directory.
     final home = Platform.environment['HOME'];
 
     if (home != null) {
@@ -345,7 +336,6 @@ class _DocumentPreviewState extends State<DocumentPreview> {
         final output = result.stdout.toString().trim();
 
         if (output.isNotEmpty) {
-          // `where` can return multiple lines on Windows.
           final firstLine = output
               .split(RegExp(r'[\r\n]+'))
               .first
@@ -358,7 +348,6 @@ class _DocumentPreviewState extends State<DocumentPreview> {
       }
     } catch (_) {}
 
-    // As a final fallback, try executing the command directly.
     try {
       final result = await Process.run(
         executable,
@@ -465,45 +454,56 @@ class _DocumentPreviewState extends State<DocumentPreview> {
           onSurface: Colors.black,
         ),
       ),
-      child: const ColoredBox(
-        color: Color(0xFFE5E7EB),
-        child: _PdfViewerPlaceholder(),
+      child: ColoredBox(
+        color: const Color(0xFFE5E7EB),
+        child: _PdfViewer(
+          pdfPath: pdfPath,
+        ),
       ),
     );
   }
 }
 
-class _PdfViewerPlaceholder extends StatelessWidget {
-  const _PdfViewerPlaceholder();
+class _PdfViewer extends StatefulWidget {
+  final String pdfPath;
+
+  const _PdfViewer({
+    required this.pdfPath,
+  });
+
+  @override
+  State<_PdfViewer> createState() => _PdfViewerState();
+}
+
+class _PdfViewerState extends State<_PdfViewer> {
+  final PdfViewerController _controller = PdfViewerController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final state = context.findAncestorStateOfType<_DocumentPreviewState>();
-
-    final pdfPath = state?._pdfPath;
-
-    if (pdfPath == null) {
-      return const SizedBox.expand();
-    }
-
     return SizedBox.expand(
-      child: PdfViewer.file(
-        pdfPath,
-        params: const PdfViewerParams(
-          backgroundColor: Color(0xFFE5E7EB),
-          margin: 18,
-          pageAnchor: PdfPageAnchor.top,
-          underflowAnchor: PdfPageAnchor.topCenter,
-          pageDropShadow: BoxShadow(
-            color: Color(0x33000000),
-            blurRadius: 10,
-            spreadRadius: 1,
-            offset: Offset(0, 3),
-          ),
-          scrollPhysics: ClampingScrollPhysics(),
-          panEnabled: true,
-          scaleEnabled: true,
-        ),
+      child: SfPdfViewer.file(
+        File(widget.pdfPath),
+        controller: _controller,
+        pageLayoutMode: PdfPageLayoutMode.continuous,
+        scrollDirection: PdfScrollDirection.vertical,
+        canShowScrollHead: true,
+        canShowScrollStatus: true,
+        enableDoubleTapZooming: true,
+        enableTextSelection: true,
+        interactionMode: PdfInteractionMode.selection,
+        pageSpacing: 18,
+        onDocumentLoadFailed: (details) {
+          debugPrint(
+            'PDF viewer failed to load document: '
+            '${details.error}',
+          );
+        },
       ),
     );
   }

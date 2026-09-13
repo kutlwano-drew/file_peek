@@ -25,17 +25,17 @@ class StatusBar extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Folders: ${statistics.totalFolders}', style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+              Text('Folders: ${statistics.totalFolders}', style: const TextStyle(fontSize: 10, color: Colors.white)),
               const SizedBox(width: AppSpacing.md),
-              Text('Files: ${statistics.totalFiles}', style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+              Text('Files: ${statistics.totalFiles}', style: const TextStyle(fontSize: 10, color: Colors.white)),
               const SizedBox(width: AppSpacing.md),
-              Text('Size: ${statistics.formattedTotalSize}', style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+              Text('Size: ${statistics.formattedTotalSize}', style: const TextStyle(fontSize: 10, color: Colors.white)),
             ],
           ),
           if (selectedFile != null)
             Text(
               'Selected: ${selectedFile!.name} (${selectedFile!.formattedSize})',
-              style: const TextStyle(fontSize: 10, color: AppColors.primary),
+              style: const TextStyle(fontSize: 10, color: Colors.white),
             ),
         ],
       ),
