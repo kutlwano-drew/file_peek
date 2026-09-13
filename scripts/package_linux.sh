@@ -50,7 +50,7 @@ cp "$DESKTOP_FILE" \
   "$STAGE_DIR/usr/share/applications/file-peek.desktop"
 
 cp "$ICON_FILE" \
-  "$STAGE_DIR/usr/share/icons/hicolor/256x256/apps/file-peek.png"
+  "$STAGE_DIR/usr/share/icons/hicolor/256x256/apps/filepeek.png"
 
 ln -s /opt/file-peek/file_peek \
   "$STAGE_DIR/usr/bin/file-peek"
@@ -77,7 +77,7 @@ fpm \
   opt/file-peek \
   usr/bin/file-peek \
   usr/share/applications/file-peek.desktop \
-  usr/share/icons/hicolor/256x256/apps/file-peek.png
+  usr/share/icons/hicolor/256x256/apps/filepeek.png
 
 echo "Building RPM package..."
 
@@ -99,7 +99,7 @@ fpm \
   opt/file-peek \
   usr/bin/file-peek \
   usr/share/applications/file-peek.desktop \
-  usr/share/icons/hicolor/256x256/apps/file-peek.png
+  usr/share/icons/hicolor/256x256/apps/filepeek.png
 
 echo "Building TAR.GZ package..."
 
@@ -131,13 +131,13 @@ cp "$DESKTOP_FILE" \
   "$APPIMAGE_DIR/usr/share/applications/file-peek.desktop"
 
 cp "$ICON_FILE" \
-  "$APPIMAGE_DIR/usr/share/icons/hicolor/256x256/apps/file-peek.png"
+  "$APPIMAGE_DIR/usr/share/icons/hicolor/256x256/apps/filepeek.png"
 
 cp "$DESKTOP_FILE" \
   "$APPIMAGE_DIR/file-peek.desktop"
 
 cp "$ICON_FILE" \
-  "$APPIMAGE_DIR/file-peek.png"
+  "$APPIMAGE_DIR/filepeek.png"
 
 sed -i \
   's|^Exec=.*|Exec=file_peek %F|' \
@@ -159,7 +159,7 @@ APPIMAGE_EXTRACT_AND_RUN=1 \
   --appdir "$APPIMAGE_DIR" \
   --executable "$APPIMAGE_DIR/usr/bin/file_peek" \
   --desktop-file "$APPIMAGE_DIR/file-peek.desktop" \
-  --icon-file "$APPIMAGE_DIR/file-peek.png" \
+  --icon-file "$APPIMAGE_DIR/filepeek.png" \
   --output appimage
 
 GENERATED_APPIMAGE="$(find "$ROOT_DIR/build/linux" -maxdepth 1 -type f -name '*.AppImage' -print -quit)"
@@ -189,7 +189,7 @@ cp "$DESKTOP_FILE" \
   "$SNAP_BUILD_DIR/gui/file-peek.desktop"
 
 cp "$ICON_FILE" \
-  "$SNAP_BUILD_DIR/gui/file-peek.png"
+  "$SNAP_BUILD_DIR/gui/filepeek.png"
 
 cp "$ROOT_DIR/packaging/snap/snapcraft.yaml" \
   "$SNAP_BUILD_DIR/snapcraft.yaml"

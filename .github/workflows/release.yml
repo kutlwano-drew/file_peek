@@ -109,11 +109,7 @@ jobs:
           dart --version
 
       - name: Build Windows
-        run: |
-          flutter build windows \
-            --release \
-            --build-name "${{ env.APP_VERSION }}" \
-            --build-number 1
+        run: flutter build windows --release --build-name "${{ env.APP_VERSION }}" --build-number 1
 
       - name: Prepare Windows package directory
         shell: pwsh
@@ -247,7 +243,7 @@ jobs:
         run: |
           flutter build macos \
             --release \
-            --build-name "${APP_VERSION}" \
+            --build-name "${{ env.APP_VERSION }}" \
             --build-number 1
 
       - name: Package macOS
@@ -311,7 +307,7 @@ jobs:
         run: |
           flutter build macos \
             --release \
-            --build-name "${APP_VERSION}" \
+            --build-name "${{ env.APP_VERSION }}" \
             --build-number 1
 
       - name: Package macOS

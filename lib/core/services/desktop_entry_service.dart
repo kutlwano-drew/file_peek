@@ -51,7 +51,7 @@ class DesktopEntryService {
       await iconsDir.create(recursive: true);
 
       final iconFile = File(
-        '${iconsDir.path}/file-peek.png',
+        '${iconsDir.path}/filepeek.png',
       );
 
       final iconInstalled = await _installAssetIcon(
@@ -267,7 +267,7 @@ class DesktopEntryService {
       // -----------------------------------------------------------------------
 
       final pngIcon = File(
-        '${resourcesDir.path}/file-peek.png',
+        '${resourcesDir.path}/filepeek.png',
       );
 
       await _installAssetIcon(
