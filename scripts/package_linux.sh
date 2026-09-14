@@ -44,16 +44,48 @@ if [[ ! -f "$ICON_FILE" ]]; then
     exit 1
 fi
 
+PDFIUM_FILE="$(find "$BUNDLE_DIR" -type f -name "libpdfium.so" -print -quit)"
+
+if [[ -z "$PDFIUM_FILE" ]]; then
+    echo "Syncfusion PDFium library was not found in the Flutter Linux bundle."
+    echo "Expected: libpdfium.so"
+    exit 1
+fi
+
+echo "Found PDFium:"
+echo "$PDFIUM_FILE"
+
 cp -a "$BUNDLE_DIR/." "$STAGE_DIR/opt/file-peek/"
+
+mkdir -p "$STAGE_DIR/opt/file-peek/lib"
+
+cp "$PDFIUM_FILE" \
+    "$STAGE_DIR/opt/file-peek/lib/libpdfium.so"
+
+chmod +x "$STAGE_DIR/opt/file-peek/file_peek"
+
+if command -v patchelf >/dev/null 2>&1; then
+    echo "Configuring File Peek runtime library path..."
+
+    patchelf \
+        --set-rpath '$ORIGIN/lib' \
+        "$STAGE_DIR/opt/file-peek/file_peek"
+else
+    echo "patchelf was not found."
+    echo "The Linux release build requires patchelf to bundle PDFium correctly."
+    exit 1
+fi
 
 sed \
     -e 's|^Exec=.*|Exec=file-peek %F|' \
     -e 's|^Icon=.*|Icon=filepeek|' \
+    -e 's|^Categories=.*|Categories=Utility;Development;|' \
     "$DESKTOP_FILE" \
     > "$STAGE_DIR/usr/share/applications/file-peek.desktop"
 
 if command -v desktop-file-validate >/dev/null 2>&1; then
-    desktop-file-validate "$STAGE_DIR/usr/share/applications/file-peek.desktop"
+    desktop-file-validate \
+        "$STAGE_DIR/usr/share/applications/file-peek.desktop"
 fi
 
 cp "$ICON_FILE" \
@@ -61,8 +93,6 @@ cp "$ICON_FILE" \
 
 ln -s /opt/file-peek/file_peek \
     "$STAGE_DIR/usr/bin/file-peek"
-
-chmod +x "$STAGE_DIR/opt/file-peek/file_peek"
 
 echo "Building Debian package..."
 
@@ -118,6 +148,17 @@ mkdir -p "$TAR_DIR"
 
 cp -a "$BUNDLE_DIR/." "$TAR_DIR/"
 
+mkdir -p "$TAR_DIR/lib"
+
+cp "$PDFIUM_FILE" \
+    "$TAR_DIR/lib/libpdfium.so"
+
+if command -v patchelf >/dev/null 2>&1; then
+    patchelf \
+        --set-rpath '$ORIGIN/lib' \
+        "$TAR_DIR/file_peek"
+fi
+
 tar \
     -C "$ROOT_DIR/build/linux" \
     -czf "$DIST_DIR/File-Peek-${RELEASE_TAG}-linux-x64.tar.gz" \
@@ -130,9 +171,19 @@ echo "Building AppImage..."
 mkdir -p "$APPIMAGE_DIR/usr/bin"
 mkdir -p "$APPIMAGE_DIR/usr/share/applications"
 mkdir -p "$APPIMAGE_DIR/usr/share/icons/hicolor/256x256/apps"
+mkdir -p "$APPIMAGE_DIR/usr/lib"
 
 cp -a "$BUNDLE_DIR/." \
     "$APPIMAGE_DIR/usr/bin/"
+
+cp "$PDFIUM_FILE" \
+    "$APPIMAGE_DIR/usr/lib/libpdfium.so"
+
+if command -v patchelf >/dev/null 2>&1; then
+    patchelf \
+        --set-rpath '$ORIGIN/../lib' \
+        "$APPIMAGE_DIR/usr/bin/file_peek"
+fi
 
 cp "$DESKTOP_FILE" \
     "$APPIMAGE_DIR/usr/share/applications/file-peek.desktop"
@@ -169,7 +220,14 @@ APPIMAGE_EXTRACT_AND_RUN=1 \
     --icon-file "$APPIMAGE_DIR/filepeek.png" \
     --output appimage
 
-GENERATED_APPIMAGE="$(find "$ROOT_DIR/build/linux" -maxdepth 1 -type f -name '*.AppImage' -print -quit)"
+GENERATED_APPIMAGE="$(
+    find "$ROOT_DIR/build/linux" \
+        -maxdepth 1 \
+        -type f \
+        -name '*.AppImage' \
+        -print \
+        -quit
+)"
 
 if [[ -z "$GENERATED_APPIMAGE" ]]; then
     echo "AppImage was not created."
@@ -209,7 +267,14 @@ cp "$ROOT_DIR/packaging/snap/snapcraft.yaml" \
         --output "$DIST_DIR"
 )
 
-SNAP_FILE="$(find "$DIST_DIR" -maxdepth 1 -type f -name '*.snap' -print -quit)"
+SNAP_FILE="$(
+    find "$DIST_DIR" \
+        -maxdepth 1 \
+        -type f \
+        -name '*.snap' \
+        -print \
+        -quit
+)"
 
 if [[ -z "$SNAP_FILE" ]]; then
     echo "Snap package was not created."
@@ -223,4 +288,7 @@ echo
 
 echo "Linux packages created:"
 
-find "$DIST_DIR" -maxdepth 1 -type f -print
+find "$DIST_DIR" \
+    -maxdepth 1 \
+    -type f \
+    -print
