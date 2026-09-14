@@ -32,11 +32,10 @@ dependencies:
   heroicons: ^0.11.0
   flutter_glow: ^0.3.2
   sqlite3: ^3.5.2
-  docx_to_text: ^1.0.1
   flutter_markdown: ^0.7.7+1
   excel: ^4.0.6
   country_flags: ^4.1.2
-  syncfusion_flutter_pdfviewer: ^33.2.13
+  dart_pdf_engine: ^1.2.0
 
 dev_dependencies:
   flutter_test:

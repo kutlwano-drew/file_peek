@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:dart_pdf_engine/dart_pdf_engine_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class DocumentPreview extends StatefulWidget {
   final String path;
@@ -19,6 +20,9 @@ class DocumentPreview extends StatefulWidget {
 
 class _DocumentPreviewState extends State<DocumentPreview> {
   String? _pdfPath;
+  Uint8List? _pdfBytes;
+  PdfViewerController? _controller;
+
   String? _error;
   bool _loading = true;
 
@@ -35,9 +39,13 @@ class _DocumentPreviewState extends State<DocumentPreview> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.path != widget.path) {
+      _controller?.dispose();
+      _controller = null;
+
       _cleanupWorkingDirectory();
 
       _pdfPath = null;
+      _pdfBytes = null;
       _error = null;
       _loading = true;
 
@@ -47,6 +55,7 @@ class _DocumentPreviewState extends State<DocumentPreview> {
 
   @override
   void dispose() {
+    _controller?.dispose();
     _cleanupWorkingDirectory();
     super.dispose();
   }
@@ -181,10 +190,27 @@ class _DocumentPreviewState extends State<DocumentPreview> {
         );
       }
 
-      if (!mounted) return;
+      final pdfBytes = await expectedPdf.readAsBytes();
+
+      if (pdfBytes.isEmpty) {
+        throw Exception(
+          'LibreOffice produced an empty PDF.',
+        );
+      }
+
+      final controller = PdfViewerController.fromBytes(
+        Uint8List.fromList(pdfBytes),
+      );
+
+      if (!mounted) {
+        controller.dispose();
+        return;
+      }
 
       setState(() {
         _pdfPath = expectedPdf.path;
+        _pdfBytes = pdfBytes;
+        _controller = controller;
         _loading = false;
         _error = null;
       });
@@ -424,10 +450,14 @@ class _DocumentPreviewState extends State<DocumentPreview> {
         message: 'Unable to render document',
         details: _error!,
         onRetry: () {
+          _controller?.dispose();
+          _controller = null;
+
           setState(() {
             _loading = true;
             _error = null;
             _pdfPath = null;
+            _pdfBytes = null;
           });
 
           _convertDocument();
@@ -435,75 +465,27 @@ class _DocumentPreviewState extends State<DocumentPreview> {
       );
     }
 
-    final pdfPath = _pdfPath;
+    final controller = _controller;
 
-    if (pdfPath == null) {
+    if (controller == null) {
       return const _DocumentError(
         message: 'Unable to render document',
         details: 'No rendered document was produced.',
       );
     }
 
-    return Theme(
-      data: ThemeData(
-        useMaterial3: true,
-        brightness: Brightness.light,
-        colorScheme: const ColorScheme.light(
-          primary: Color(0xFF185ABD),
-          surface: Color(0xFFE5E7EB),
-          onSurface: Colors.black,
-        ),
-      ),
-      child: ColoredBox(
-        color: const Color(0xFFE5E7EB),
-        child: _PdfViewer(
-          pdfPath: pdfPath,
-        ),
-      ),
-    );
-  }
-}
-
-class _PdfViewer extends StatefulWidget {
-  final String pdfPath;
-
-  const _PdfViewer({
-    required this.pdfPath,
-  });
-
-  @override
-  State<_PdfViewer> createState() => _PdfViewerState();
-}
-
-class _PdfViewerState extends State<_PdfViewer> {
-  final PdfViewerController _controller = PdfViewerController();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: SfPdfViewer.file(
-        File(widget.pdfPath),
-        controller: _controller,
-        pageLayoutMode: PdfPageLayoutMode.continuous,
-        scrollDirection: PdfScrollDirection.vertical,
-        canShowScrollHead: true,
-        canShowScrollStatus: true,
-        enableDoubleTapZooming: true,
-        enableTextSelection: true,
-        interactionMode: PdfInteractionMode.selection,
+    return ColoredBox(
+      color: const Color(0xFFE5E7EB),
+      child: PdfViewer(
+        controller: controller,
+        continuousScroll: true,
+        enableZoom: true,
+        minScale: 0.5,
+        maxScale: 4.0,
+        backgroundColor: const Color(0xFFE5E7EB),
         pageSpacing: 18,
-        onDocumentLoadFailed: (details) {
-          debugPrint(
-            'PDF viewer failed to load document: '
-            '${details.error}',
-          );
-        },
+        showNavigationControls: true,
+        showPageIndicator: true,
       ),
     );
   }
