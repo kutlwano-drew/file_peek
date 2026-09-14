@@ -182,6 +182,7 @@ jobs:
             -out "build\wix\harvested.wxs"
 
           & "$wixRoot\candle.exe" `
+            -arch x64 `
             -dSourceDir="$env:BUILD_DIR" `
             -dAppVersion="$env:APP_VERSION" `
             -out "build\wix\" `
