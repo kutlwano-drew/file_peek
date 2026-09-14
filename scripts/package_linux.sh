@@ -21,6 +21,7 @@ rm -rf "$STAGE_DIR"
 rm -rf "$APPIMAGE_DIR"
 
 mkdir -p "$DIST_DIR"
+
 mkdir -p "$STAGE_DIR/opt/file-peek"
 mkdir -p "$STAGE_DIR/usr/bin"
 mkdir -p "$STAGE_DIR/usr/share/applications"
@@ -38,39 +39,47 @@ if [[ ! -f "$BUNDLE_DIR/file_peek" ]]; then
     exit 1
 fi
 
+if [[ ! -d "$BUNDLE_DIR/lib" ]]; then
+    echo "Flutter Linux library directory not found:"
+    echo "$BUNDLE_DIR/lib"
+    exit 1
+fi
+
 if [[ ! -f "$ICON_FILE" ]]; then
     echo "File Peek icon not found:"
     echo "$ICON_FILE"
     exit 1
 fi
 
-PDFIUM_FILE="$(find "$BUNDLE_DIR" -type f -name "libpdfium.so" -print -quit)"
+PDFIUM_FILE="$BUNDLE_DIR/lib/libpdfium.so"
+MEDIA_KIT_FILE="$BUNDLE_DIR/lib/libmedia_kit_libs_linux_plugin.so"
 
-if [[ -z "$PDFIUM_FILE" ]]; then
-    echo "Syncfusion PDFium library was not found in the Flutter Linux bundle."
-    echo "Expected: libpdfium.so"
+if [[ ! -f "$PDFIUM_FILE" ]]; then
+    echo "Syncfusion PDFium library is missing from the Flutter bundle:"
+    echo "$PDFIUM_FILE"
     exit 1
 fi
 
-echo "Found PDFium:"
-echo "$PDFIUM_FILE"
-
-cp -a "$BUNDLE_DIR/." "$STAGE_DIR/opt/file-peek/"
-
-mkdir -p "$STAGE_DIR/opt/file-peek/lib"
-
-cp "$PDFIUM_FILE" \
-    "$STAGE_DIR/opt/file-peek/lib/libpdfium.so"
-
-chmod +x "$STAGE_DIR/opt/file-peek/file_peek"
+if [[ ! -f "$MEDIA_KIT_FILE" ]]; then
+    echo "media_kit Linux plugin is missing from the Flutter bundle:"
+    echo "$MEDIA_KIT_FILE"
+    exit 1
+fi
 
 if ! command -v patchelf >/dev/null 2>&1; then
     echo "patchelf was not found."
-    echo "The Linux release build requires patchelf."
+    echo "Install patchelf in the Linux CI environment."
     exit 1
 fi
 
-echo "Configuring File Peek runtime library path..."
+echo "Flutter Linux bundle verified."
+echo "PDFium: $PDFIUM_FILE"
+echo "media_kit: $MEDIA_KIT_FILE"
+
+echo "Preparing Debian/RPM application bundle..."
+
+cp -a "$BUNDLE_DIR/." \
+    "$STAGE_DIR/opt/file-peek/"
 
 patchelf \
     --set-rpath '$ORIGIN/lib' \
@@ -93,6 +102,9 @@ cp "$ICON_FILE" \
 
 ln -s /opt/file-peek/file_peek \
     "$STAGE_DIR/usr/bin/file-peek"
+
+chmod +x \
+    "$STAGE_DIR/opt/file-peek/file_peek"
 
 echo "Building Debian package..."
 
@@ -146,12 +158,8 @@ rm -rf "$TAR_DIR"
 
 mkdir -p "$TAR_DIR"
 
-cp -a "$BUNDLE_DIR/." "$TAR_DIR/"
-
-mkdir -p "$TAR_DIR/lib"
-
-cp "$PDFIUM_FILE" \
-    "$TAR_DIR/lib/libpdfium.so"
+cp -a "$BUNDLE_DIR/." \
+    "$TAR_DIR/"
 
 patchelf \
     --set-rpath '$ORIGIN/lib' \
@@ -171,29 +179,25 @@ mkdir -p "$APPIMAGE_DIR/usr/lib"
 mkdir -p "$APPIMAGE_DIR/usr/share/applications"
 mkdir -p "$APPIMAGE_DIR/usr/share/icons/hicolor/256x256/apps"
 
+# Keep Flutter's data directory beside the executable.
 cp -a "$BUNDLE_DIR/data" \
     "$APPIMAGE_DIR/usr/bin/"
+
+# Keep Flutter's bundled shared libraries in AppDir/usr/lib.
+cp -a "$BUNDLE_DIR/lib/." \
+    "$APPIMAGE_DIR/usr/lib/"
 
 cp "$BUNDLE_DIR/file_peek" \
     "$APPIMAGE_DIR/usr/bin/file_peek"
 
-if [[ -d "$BUNDLE_DIR/lib" ]]; then
-    cp -a "$BUNDLE_DIR/lib/." \
-        "$APPIMAGE_DIR/usr/lib/"
-fi
-
-cp "$PDFIUM_FILE" \
-    "$APPIMAGE_DIR/usr/lib/libpdfium.so"
-
-MEDIA_KIT_PLUGIN="$APPIMAGE_DIR/usr/lib/libmedia_kit_libs_linux_plugin.so"
-
-if [[ ! -f "$MEDIA_KIT_PLUGIN" ]]; then
-    echo "media_kit Linux plugin was not found in the Flutter bundle."
-    echo "Expected:"
-    echo "$MEDIA_KIT_PLUGIN"
-    exit 1
-fi
-
+# The executable is now at:
+#   AppDir/usr/bin/file_peek
+#
+# Flutter's native libraries are at:
+#   AppDir/usr/lib/
+#
+# Therefore the executable must search one directory above
+# its own directory for the bundled libraries.
 patchelf \
     --set-rpath '$ORIGIN/../lib' \
     "$APPIMAGE_DIR/usr/bin/file_peek"
@@ -216,7 +220,10 @@ sed -i \
     -e 's|^Categories=.*|Categories=Utility;Development;|' \
     "$APPIMAGE_DIR/file-peek.desktop"
 
-chmod +x "$APPIMAGE_DIR/usr/bin/file_peek"
+chmod +x \
+    "$APPIMAGE_DIR/usr/bin/file_peek"
+
+echo "Downloading linuxdeploy..."
 
 curl \
     -L \
@@ -225,14 +232,14 @@ curl \
     -o "$ROOT_DIR/build/linux/linuxdeploy.AppImage" \
     "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
 
-chmod +x "$ROOT_DIR/build/linux/linuxdeploy.AppImage"
+chmod +x \
+    "$ROOT_DIR/build/linux/linuxdeploy.AppImage"
+
+echo "Building AppImage..."
 
 APPIMAGE_EXTRACT_AND_RUN=1 \
     "$ROOT_DIR/build/linux/linuxdeploy.AppImage" \
     --appdir "$APPIMAGE_DIR" \
-    --executable "$APPIMAGE_DIR/usr/bin/file_peek" \
-    --library "$APPIMAGE_DIR/usr/lib/libmedia_kit_libs_linux_plugin.so" \
-    --library "$APPIMAGE_DIR/usr/lib/libpdfium.so" \
     --desktop-file "$APPIMAGE_DIR/file-peek.desktop" \
     --icon-file "$APPIMAGE_DIR/filepeek.png" \
     --output appimage
