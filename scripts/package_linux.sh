@@ -64,17 +64,17 @@ cp "$PDFIUM_FILE" \
 
 chmod +x "$STAGE_DIR/opt/file-peek/file_peek"
 
-if command -v patchelf >/dev/null 2>&1; then
-    echo "Configuring File Peek runtime library path..."
-
-    patchelf \
-        --set-rpath '$ORIGIN/lib' \
-        "$STAGE_DIR/opt/file-peek/file_peek"
-else
+if ! command -v patchelf >/dev/null 2>&1; then
     echo "patchelf was not found."
-    echo "The Linux release build requires patchelf to bundle PDFium correctly."
+    echo "The Linux release build requires patchelf."
     exit 1
 fi
+
+echo "Configuring File Peek runtime library path..."
+
+patchelf \
+    --set-rpath '$ORIGIN/lib' \
+    "$STAGE_DIR/opt/file-peek/file_peek"
 
 sed \
     -e 's|^Exec=.*|Exec=file-peek %F|' \
@@ -153,11 +153,9 @@ mkdir -p "$TAR_DIR/lib"
 cp "$PDFIUM_FILE" \
     "$TAR_DIR/lib/libpdfium.so"
 
-if command -v patchelf >/dev/null 2>&1; then
-    patchelf \
-        --set-rpath '$ORIGIN/lib' \
-        "$TAR_DIR/file_peek"
-fi
+patchelf \
+    --set-rpath '$ORIGIN/lib' \
+    "$TAR_DIR/file_peek"
 
 tar \
     -C "$ROOT_DIR/build/linux" \
@@ -169,21 +167,36 @@ rm -rf "$TAR_DIR"
 echo "Building AppImage..."
 
 mkdir -p "$APPIMAGE_DIR/usr/bin"
+mkdir -p "$APPIMAGE_DIR/usr/lib"
 mkdir -p "$APPIMAGE_DIR/usr/share/applications"
 mkdir -p "$APPIMAGE_DIR/usr/share/icons/hicolor/256x256/apps"
-mkdir -p "$APPIMAGE_DIR/usr/lib"
 
-cp -a "$BUNDLE_DIR/." \
+cp -a "$BUNDLE_DIR/data" \
     "$APPIMAGE_DIR/usr/bin/"
+
+cp "$BUNDLE_DIR/file_peek" \
+    "$APPIMAGE_DIR/usr/bin/file_peek"
+
+if [[ -d "$BUNDLE_DIR/lib" ]]; then
+    cp -a "$BUNDLE_DIR/lib/." \
+        "$APPIMAGE_DIR/usr/lib/"
+fi
 
 cp "$PDFIUM_FILE" \
     "$APPIMAGE_DIR/usr/lib/libpdfium.so"
 
-if command -v patchelf >/dev/null 2>&1; then
-    patchelf \
-        --set-rpath '$ORIGIN/../lib' \
-        "$APPIMAGE_DIR/usr/bin/file_peek"
+MEDIA_KIT_PLUGIN="$APPIMAGE_DIR/usr/lib/libmedia_kit_libs_linux_plugin.so"
+
+if [[ ! -f "$MEDIA_KIT_PLUGIN" ]]; then
+    echo "media_kit Linux plugin was not found in the Flutter bundle."
+    echo "Expected:"
+    echo "$MEDIA_KIT_PLUGIN"
+    exit 1
 fi
+
+patchelf \
+    --set-rpath '$ORIGIN/../lib' \
+    "$APPIMAGE_DIR/usr/bin/file_peek"
 
 cp "$DESKTOP_FILE" \
     "$APPIMAGE_DIR/usr/share/applications/file-peek.desktop"
@@ -198,7 +211,9 @@ cp "$ICON_FILE" \
     "$APPIMAGE_DIR/filepeek.png"
 
 sed -i \
-    's|^Exec=.*|Exec=file_peek %F|' \
+    -e 's|^Exec=.*|Exec=file_peek %F|' \
+    -e 's|^Icon=.*|Icon=filepeek|' \
+    -e 's|^Categories=.*|Categories=Utility;Development;|' \
     "$APPIMAGE_DIR/file-peek.desktop"
 
 chmod +x "$APPIMAGE_DIR/usr/bin/file_peek"
@@ -216,6 +231,8 @@ APPIMAGE_EXTRACT_AND_RUN=1 \
     "$ROOT_DIR/build/linux/linuxdeploy.AppImage" \
     --appdir "$APPIMAGE_DIR" \
     --executable "$APPIMAGE_DIR/usr/bin/file_peek" \
+    --library "$APPIMAGE_DIR/usr/lib/libmedia_kit_libs_linux_plugin.so" \
+    --library "$APPIMAGE_DIR/usr/lib/libpdfium.so" \
     --desktop-file "$APPIMAGE_DIR/file-peek.desktop" \
     --icon-file "$APPIMAGE_DIR/filepeek.png" \
     --output appimage
