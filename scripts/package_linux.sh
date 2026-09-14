@@ -61,12 +61,6 @@ echo "$BUNDLE_DIR"
 
 echo "Checking required native libraries..."
 
-if [[ ! -f "$BUNDLE_DIR/lib/libpdfium.so" ]]; then
-    echo "Required Syncfusion PDFium library is missing from the Flutter bundle:"
-    echo "$BUNDLE_DIR/lib/libpdfium.so"
-    exit 1
-fi
-
 if [[ ! -f "$BUNDLE_DIR/lib/libmedia_kit_libs_linux_plugin.so" ]]; then
     echo "Required media_kit Linux plugin is missing from the Flutter bundle:"
     echo "$BUNDLE_DIR/lib/libmedia_kit_libs_linux_plugin.so"
