@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=File Peek
+Comment=File explorer and file preview application
+Exec=file_peek
+Icon=filepeek
+Terminal=false
+Type=Application
+Categories=Utility;FileManager;
+StartupWMClass=File Peek
