@@ -21,7 +21,6 @@ rm -rf "$STAGE_DIR"
 rm -rf "$APPIMAGE_DIR"
 
 mkdir -p "$DIST_DIR"
-
 mkdir -p "$STAGE_DIR/opt/file-peek"
 mkdir -p "$STAGE_DIR/usr/bin"
 mkdir -p "$STAGE_DIR/usr/share/applications"
@@ -51,40 +50,39 @@ if [[ ! -f "$ICON_FILE" ]]; then
     exit 1
 fi
 
-PDFIUM_FILE="$BUNDLE_DIR/lib/libpdfium.so"
-MEDIA_KIT_FILE="$BUNDLE_DIR/lib/libmedia_kit_libs_linux_plugin.so"
-
-if [[ ! -f "$PDFIUM_FILE" ]]; then
-    echo "Syncfusion PDFium library is missing from the Flutter bundle:"
-    echo "$PDFIUM_FILE"
+if [[ ! -f "$DESKTOP_FILE" ]]; then
+    echo "Desktop entry not found:"
+    echo "$DESKTOP_FILE"
     exit 1
 fi
 
-if [[ ! -f "$MEDIA_KIT_FILE" ]]; then
-    echo "media_kit Linux plugin is missing from the Flutter bundle:"
-    echo "$MEDIA_KIT_FILE"
+echo "Flutter Linux bundle found:"
+echo "$BUNDLE_DIR"
+
+echo "Checking required native libraries..."
+
+if [[ ! -f "$BUNDLE_DIR/lib/libpdfium.so" ]]; then
+    echo "Required Syncfusion PDFium library is missing from the Flutter bundle:"
+    echo "$BUNDLE_DIR/lib/libpdfium.so"
     exit 1
 fi
 
-if ! command -v patchelf >/dev/null 2>&1; then
-    echo "patchelf was not found."
-    echo "Install patchelf in the Linux CI environment."
+if [[ ! -f "$BUNDLE_DIR/lib/libmedia_kit_libs_linux_plugin.so" ]]; then
+    echo "Required media_kit Linux plugin is missing from the Flutter bundle:"
+    echo "$BUNDLE_DIR/lib/libmedia_kit_libs_linux_plugin.so"
     exit 1
 fi
 
-echo "Flutter Linux bundle verified."
-echo "PDFium: $PDFIUM_FILE"
-echo "media_kit: $MEDIA_KIT_FILE"
+echo "Required native libraries found."
 
 echo "Preparing Debian/RPM application bundle..."
 
+# Preserve Flutter's release bundle exactly as generated.
 cp -a "$BUNDLE_DIR/." \
     "$STAGE_DIR/opt/file-peek/"
 
-patchelf \
-    --set-rpath '$ORIGIN/lib' \
-    "$STAGE_DIR/opt/file-peek/file_peek"
-
+# Debian/RPM desktop entry.
+# Snap-specific ${SNAP} icon path must not be used here.
 sed \
     -e 's|^Exec=.*|Exec=file-peek %F|' \
     -e 's|^Icon=.*|Icon=filepeek|' \
@@ -158,12 +156,9 @@ rm -rf "$TAR_DIR"
 
 mkdir -p "$TAR_DIR"
 
+# Preserve Flutter's Linux bundle exactly as generated.
 cp -a "$BUNDLE_DIR/." \
     "$TAR_DIR/"
-
-patchelf \
-    --set-rpath '$ORIGIN/lib' \
-    "$TAR_DIR/file_peek"
 
 tar \
     -C "$ROOT_DIR/build/linux" \
@@ -175,32 +170,12 @@ rm -rf "$TAR_DIR"
 echo "Building AppImage..."
 
 mkdir -p "$APPIMAGE_DIR/usr/bin"
-mkdir -p "$APPIMAGE_DIR/usr/lib"
 mkdir -p "$APPIMAGE_DIR/usr/share/applications"
 mkdir -p "$APPIMAGE_DIR/usr/share/icons/hicolor/256x256/apps"
 
-# Keep Flutter's data directory beside the executable.
-cp -a "$BUNDLE_DIR/data" \
+# Preserve Flutter's bundle structure inside AppImage.
+cp -a "$BUNDLE_DIR/." \
     "$APPIMAGE_DIR/usr/bin/"
-
-# Keep Flutter's bundled shared libraries in AppDir/usr/lib.
-cp -a "$BUNDLE_DIR/lib/." \
-    "$APPIMAGE_DIR/usr/lib/"
-
-cp "$BUNDLE_DIR/file_peek" \
-    "$APPIMAGE_DIR/usr/bin/file_peek"
-
-# The executable is now at:
-#   AppDir/usr/bin/file_peek
-#
-# Flutter's native libraries are at:
-#   AppDir/usr/lib/
-#
-# Therefore the executable must search one directory above
-# its own directory for the bundled libraries.
-patchelf \
-    --set-rpath '$ORIGIN/../lib' \
-    "$APPIMAGE_DIR/usr/bin/file_peek"
 
 cp "$DESKTOP_FILE" \
     "$APPIMAGE_DIR/usr/share/applications/file-peek.desktop"
@@ -269,6 +244,7 @@ rm -rf "$SNAP_BUILD_DIR"
 
 mkdir -p "$SNAP_BUILD_DIR/file-peek-bundle"
 
+# Preserve Flutter's Linux bundle exactly as generated.
 cp -a "$BUNDLE_DIR/." \
     "$SNAP_BUILD_DIR/file-peek-bundle/"
 
