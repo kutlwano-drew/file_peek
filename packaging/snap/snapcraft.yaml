@@ -20,7 +20,6 @@ architectures:
 apps:
   file-peek:
     command: file_peek
-    desktop: gui/file-peek.desktop
 
     plugs:
       - desktop
