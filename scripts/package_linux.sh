@@ -46,7 +46,10 @@ fi
 
 cp -a "$BUNDLE_DIR/." "$STAGE_DIR/opt/file-peek/"
 
-sed 's|^Icon=.*|Icon=filepeek|' "$DESKTOP_FILE" \
+sed \
+    -e 's|^Exec=.*|Exec=file-peek %F|' \
+    -e 's|^Icon=.*|Icon=filepeek|' \
+    "$DESKTOP_FILE" \
     > "$STAGE_DIR/usr/share/applications/file-peek.desktop"
 
 if command -v desktop-file-validate >/dev/null 2>&1; then

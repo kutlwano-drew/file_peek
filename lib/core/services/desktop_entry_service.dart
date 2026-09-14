@@ -75,7 +75,7 @@ class DesktopEntryService {
       buffer.writeln('Terminal=false');
       buffer.writeln('StartupNotify=true');
       buffer.writeln(
-        'Categories=Utility;Development;FileManager;',
+        'Categories=Utility;Development;',
       );
 
       if (iconInstalled) {

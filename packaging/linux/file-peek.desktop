@@ -5,6 +5,6 @@ Exec=file_peek %F
 Icon=filepeek
 Terminal=false
 Type=Application
-Categories=Utility;Development;FileManager;
+Categories=Utility;Development;
 StartupNotify=true
 StartupWMClass=file_peek
