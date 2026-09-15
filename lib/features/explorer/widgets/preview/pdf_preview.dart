@@ -1,30 +1,28 @@
 import 'dart:io';
-import 'dart:typed_data';
 
-import 'package:dart_pdf_engine/dart_pdf_engine_viewer.dart';
 import 'package:flutter/material.dart';
+import 'package:pdfrx/pdfrx.dart';
 
 class PdfPreview extends StatefulWidget {
-  final String path;
-
   const PdfPreview({
     super.key,
     required this.path,
   });
+
+  final String path;
 
   @override
   State<PdfPreview> createState() => _PdfPreviewState();
 }
 
 class _PdfPreviewState extends State<PdfPreview> {
-  PdfViewerController? _controller;
   String? _error;
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadPdf();
+    _validatePdf();
   }
 
   @override
@@ -32,56 +30,43 @@ class _PdfPreviewState extends State<PdfPreview> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.path != widget.path) {
-      _controller?.dispose();
-      _controller = null;
-      _error = null;
-      _loading = true;
+      setState(() {
+        _error = null;
+        _loading = true;
+      });
 
-      _loadPdf();
+      _validatePdf();
     }
   }
 
-  @override
-  void dispose() {
-    _controller?.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadPdf() async {
+  Future<void> _validatePdf() async {
     try {
       final file = File(widget.path);
 
       if (!await file.exists()) {
-        throw Exception(
-          'The PDF could not be found.\n\n${widget.path}',
-        );
+        throw Exception('The PDF file does not exist.');
       }
 
-      final bytes = await file.readAsBytes();
+      final length = await file.length();
 
-      if (bytes.isEmpty) {
+      if (length == 0) {
         throw Exception('The PDF file is empty.');
       }
 
-      final controller = PdfViewerController.fromBytes(
-        Uint8List.fromList(bytes),
-      );
-
       if (!mounted) {
-        controller.dispose();
         return;
       }
 
       setState(() {
-        _controller = controller;
         _error = null;
         _loading = false;
       });
     } catch (error) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
-        _controller = null;
         _error = _cleanError(error);
         _loading = false;
       });
@@ -89,13 +74,38 @@ class _PdfPreviewState extends State<PdfPreview> {
   }
 
   String _cleanError(Object error) {
-    final text = error.toString();
+    final message = error.toString();
 
-    if (text.startsWith('Exception: ')) {
-      return text.substring('Exception: '.length);
+    if (message.startsWith('Exception: ')) {
+      return message.substring('Exception: '.length);
     }
 
-    return text;
+    return message;
+  }
+
+  Widget _buildViewerError(
+    BuildContext context,
+    Object error,
+    StackTrace? stackTrace,
+    PdfDocumentRef documentRef,
+  ) {
+    return _PdfError(
+      message: _cleanError(error),
+      onRetry: _retry,
+    );
+  }
+
+  void _retry() {
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _error = null;
+      _loading = true;
+    });
+
+    _validatePdf();
   }
 
   @override
@@ -107,37 +117,19 @@ class _PdfPreviewState extends State<PdfPreview> {
     if (_error != null) {
       return _PdfError(
         message: _error!,
-        onRetry: () {
-          setState(() {
-            _loading = true;
-            _error = null;
-          });
-
-          _loadPdf();
-        },
-      );
-    }
-
-    final controller = _controller;
-
-    if (controller == null) {
-      return const _PdfError(
-        message: 'No PDF document was loaded.',
+        onRetry: _retry,
       );
     }
 
     return ColoredBox(
       color: const Color(0xFFE5E7EB),
-      child: PdfViewer(
-        controller: controller,
-        continuousScroll: true,
-        enableZoom: true,
-        minScale: 0.5,
-        maxScale: 4.0,
-        backgroundColor: const Color(0xFFE5E7EB),
-        pageSpacing: 18,
-        showNavigationControls: true,
-        showPageIndicator: true,
+      child: PdfViewer.file(
+        widget.path,
+        params: PdfViewerParams(
+          margin: 18,
+          minScale: 1.0,
+          errorBannerBuilder: _buildViewerError,
+        ),
       ),
     );
   }
@@ -148,54 +140,53 @@ class _PdfLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const ColoredBox(
-      color: Color(0xFFE5E7EB),
+    return ColoredBox(
+      color: const Color(0xFFE5E7EB),
       child: Center(
-        child: DecoratedBox(
+        child: Container(
+          constraints: const BoxConstraints(
+            maxWidth: 420,
+          ),
+          margin: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 28,
+            vertical: 30,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.all(
-              Radius.circular(10),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFFE5E7EB),
             ),
-            border: Border.fromBorderSide(
-              BorderSide(
-                color: Color(0xFFD1D5DB),
-              ),
-            ),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
-                color: Color(0x18000000),
-                blurRadius: 14,
+                color: Color(0x12000000),
+                blurRadius: 12,
                 offset: Offset(0, 4),
               ),
             ],
           ),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 28,
-              vertical: 22,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 22,
-                  height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                  ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 28,
+                height: 28,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.5,
                 ),
-                SizedBox(width: 16),
-                Text(
-                  'Loading PDF…',
-                  style: TextStyle(
-                    color: Color(0xFF202124),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
+              ),
+              SizedBox(height: 18),
+              Text(
+                'Loading PDF…',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF111827),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -204,13 +195,13 @@ class _PdfLoading extends StatelessWidget {
 }
 
 class _PdfError extends StatelessWidget {
-  final String message;
-  final VoidCallback? onRetry;
-
   const _PdfError({
     required this.message,
-    this.onRetry,
+    required this.onRetry,
   });
+
+  final String message;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -219,20 +210,20 @@ class _PdfError extends StatelessWidget {
       child: Center(
         child: Container(
           constraints: const BoxConstraints(
-            maxWidth: 560,
+            maxWidth: 480,
           ),
-          margin: const EdgeInsets.all(32),
-          padding: const EdgeInsets.all(30),
+          margin: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: const Color(0xFFD1D5DB),
+              color: const Color(0xFFE5E7EB),
             ),
             boxShadow: const [
               BoxShadow(
-                color: Color(0x18000000),
-                blurRadius: 16,
+                color: Color(0x12000000),
+                blurRadius: 12,
                 offset: Offset(0, 4),
               ),
             ],
@@ -242,17 +233,17 @@ class _PdfError extends StatelessWidget {
             children: [
               const Icon(
                 Icons.picture_as_pdf_outlined,
-                size: 48,
-                color: Color(0xFF5F6368),
+                size: 42,
+                color: Color(0xFFDC2626),
               ),
               const SizedBox(height: 16),
               const Text(
                 'Unable to load PDF',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Color(0xFF202124),
-                  fontSize: 17,
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  color: Color(0xFF111827),
                 ),
               ),
               const SizedBox(height: 12),
@@ -260,19 +251,17 @@ class _PdfError extends StatelessWidget {
                 message,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  color: Color(0xFF5F6368),
-                  fontSize: 12,
-                  height: 1.45,
+                  fontSize: 13,
+                  height: 1.5,
+                  color: Color(0xFF6B7280),
                 ),
               ),
-              if (onRetry != null) ...[
-                const SizedBox(height: 22),
-                FilledButton.icon(
-                  onPressed: onRetry,
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('Try again'),
-                ),
-              ],
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh, size: 18),
+                label: const Text('Try again'),
+              ),
             ],
           ),
         ),

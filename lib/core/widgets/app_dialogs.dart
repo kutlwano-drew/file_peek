@@ -35,18 +35,38 @@ class AppDialogs {
     );
   }
 
-  static Future<bool> confirmExit(BuildContext context) async {
-    final ok = await choice<bool>(
-      context,
-      title: 'Exit File Peek?',
-      message: 'Are you sure you want to close the application?',
-      icon: HeroIcons.exclamationTriangle,
-      actions: [
-        TextButton(
+ static Future<bool> confirmExit(BuildContext context) async {
+  final ok = await choice<bool>(
+    context,
+    title: 'Exit File Peek?',
+    message: 'Are you sure you want to close the application?',
+    icon: HeroIcons.exclamationTriangle,
+    actions: [
+      SizedBox(
+        width: 120,
+        height: 42,
+        child: TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
           onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancel'),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
         ),
-        GlowButton(
+      ),
+      SizedBox(
+        width: 120,
+        height: 42,
+        child: GlowButton(
           color: Colors.redAccent,
           glowColor: Colors.redAccent,
           blurRadius: 0,
@@ -59,67 +79,83 @@ class AppDialogs {
             ),
           ),
         ),
-      ],
-    );
+      ),
+    ],
+  );
 
-    if (ok == true) {
-      await _countdown(context);
-      return true;
-    }
-
-    return false;
+  if (ok == true) {
+    await _countdown(context);
+    return true;
   }
 
-  static Future<void> _countdown(BuildContext context) async {
-    var seconds = 3;
-    Timer? timer;
+  return false;
+}
 
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (dialogContext, setState) {
-            timer ??= Timer.periodic(
-              const Duration(seconds: 1),
-              (t) {
-                if (seconds <= 1) {
-                  t.cancel();
-                  Navigator.pop(dialogContext);
+static Future<void> _countdown(BuildContext context) async {
+  var seconds = 3;
+  Timer? timer;
 
-                  if (kIsWeb ||
-                      Platform.isAndroid ||
-                      Platform.isIOS) {
-                    SystemNavigator.pop();
-                  } else {
-                    exit(0);
-                  }
+  await showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (dialogContext) {
+      return StatefulBuilder(
+        builder: (dialogContext, setState) {
+          timer ??= Timer.periodic(
+            const Duration(seconds: 1),
+            (t) {
+              if (seconds <= 1) {
+                t.cancel();
+                Navigator.pop(dialogContext);
+
+                if (kIsWeb ||
+                    Platform.isAndroid ||
+                    Platform.isIOS) {
+                  SystemNavigator.pop();
                 } else {
-                  setState(() {
-                    seconds--;
-                  });
+                  exit(0);
                 }
-              },
-            );
+              } else {
+                setState(() {
+                  seconds--;
+                });
+              }
+            },
+          );
 
-            return _Shell(
-              title: 'Closing File Peek',
-              message:
-                  'The application will close in $seconds seconds.',
-              icon: HeroIcons.power,
-              loader: LoadingAnimationWidget.fallingDot(
-                color: Colors.redAccent,
-                size: 42,
-              ),
-              actions: [
-                TextButton(
+          return _Shell(
+            title: 'Closing File Peek',
+            message: 'Closing app in:\n$seconds seconds',
+            icon: HeroIcons.power,
+            actions: [
+              SizedBox(
+                width: 120,
+                height: 42,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   onPressed: () {
                     timer?.cancel();
                     Navigator.pop(dialogContext);
                   },
-                  child: const Text('Stay'),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
-                GlowButton(
+              ),
+              SizedBox(
+                width: 120,
+                height: 42,
+                child: GlowButton(
                   color: Colors.redAccent,
                   glowColor: Colors.redAccent,
                   blurRadius: 0,
@@ -143,15 +179,16 @@ class AppDialogs {
                     ),
                   ),
                 ),
-              ],
-            );
-          },
-        );
-      },
-    );
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 
-    timer?.cancel();
-  }
+  timer?.cancel();
+}
 
   static Future<void> desktopEntry(BuildContext context) async {
     if (kIsWeb || !Platform.isLinux) {
