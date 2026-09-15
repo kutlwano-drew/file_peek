@@ -1,9 +1,161 @@
-import 'dart:io';import 'package:flutter/material.dart';import 'package:file_picker/file_picker.dart';import 'package:provider/provider.dart';import '../../../core/models/file_node.dart';import '../../../core/models/project_statistics.dart';import '../../../core/services/directory_scanner.dart';import '../../../core/services/file_reader.dart';import '../../../core/services/search_service.dart';import '../../../core/services/app_preferences.dart';import '../../export/dialogs/export_project_dialog.dart';import '../../export/dialogs/export_tree_dialog.dart';
-class ExplorerController extends ChangeNotifier{FileNode? _rootNode,_selectedFileNode;FileReaderResult? _filePreviewResult;ProjectStatistics _statistics=ProjectStatistics.empty();bool _isLoading=false,_isTerminalVisible=false;String? _loadingMessage;String _searchQuery='';List<FileNode> _searchResults=[];double _terminalHeight=200;
-FileNode? get rootNode=>_rootNode;FileNode? get selectedFileNode=>_selectedFileNode;FileReaderResult? get filePreviewResult=>_filePreviewResult;ProjectStatistics get statistics=>_statistics;bool get isLoading=>_isLoading;String? get loadingMessage=>_loadingMessage;String get searchQuery=>_searchQuery;List<FileNode> get searchResults=>_searchResults;bool get includeHidden=>false;bool get isTerminalVisible=>_isTerminalVisible;double get terminalHeight=>_terminalHeight;String get currentDirectoryPath=>_rootNode?.path??'';
-Future<void> pickAndScanDirectory(BuildContext c)async{final prefs=c.read<AppPreferences>();try{final path=await FilePicker.getDirectoryPath();if(path==null)return;_setLoading(true,'Scanning directory structure…');final r=await DirectoryScanner.scanDirectory(path,includeHidden:prefs.includeHidden,maxDepth:prefs.maxDepth,onProgress:(p){_loadingMessage='Scanning: ${p.split(Platform.pathSeparator).last}';notifyListeners();});_rootNode=r.rootNode;_statistics=r.stats;_selectedFileNode=null;_filePreviewResult=null;_searchQuery='';_searchResults=[];}catch(e){_showError(c,'Failed to open directory: $e');}finally{_setLoading(false,null);}}
-Future<void> refreshCurrentDirectory(BuildContext c)async{if(_rootNode==null)return;try{_setLoading(true,'Refreshing directory…');final r=await DirectoryScanner.scanDirectory(_rootNode!.path,includeHidden:c.read<AppPreferences>().includeHidden,maxDepth:c.read<AppPreferences>().maxDepth);_rootNode=r.rootNode;_statistics=r.stats;_showSuccess(c,'Directory refreshed');}catch(e){_showError(c,'Refresh failed: $e');}finally{_setLoading(false,null);}}
-Future<void> selectFile(FileNode n,BuildContext c)async{if(n.isDirectory){n.isExpanded=!n.isExpanded;notifyListeners();return;}_selectedFileNode=n;_filePreviewResult=null;_setLoading(true,'Loading file preview…');try{_filePreviewResult=await FileReader.readFile(n.path);}catch(e){_filePreviewResult=FileReaderResult(content:'',isBinary:true,isLargeFile:false,lineCount:0,wordCount:0,charCount:0);_showError(c,'Unable to read ${n.name}: $e');}finally{_setLoading(false,null);}}
-void updateSearchQuery(String q){_searchQuery=q;_searchResults=_rootNode==null?[]:SearchService.searchNodes(_rootNode!,q);notifyListeners();}void toggleTerminal(){_isTerminalVisible=!_isTerminalVisible;notifyListeners();}void updateTerminalHeight(double d){_terminalHeight=(_terminalHeight-d).clamp(100,500);notifyListeners();}
-void exportTree(BuildContext c){if(_rootNode==null)return;showDialog(context:c,builder:(_)=>ExportTreeDialog(rootNode:_rootNode!));}void exportProject(BuildContext c){if(_rootNode==null)return;showDialog(context:c,builder:(_)=>ExportProjectDialog(rootNode:_rootNode!));}
-void _setLoading(bool v,String? m){_isLoading=v;_loadingMessage=m;notifyListeners();}void _showError(BuildContext c,String m){if(c.mounted)ScaffoldMessenger.of(c).showSnackBar(SnackBar(content:Text(m),backgroundColor:Colors.redAccent));}void _showSuccess(BuildContext c,String m){if(c.mounted)ScaffoldMessenger.of(c).showSnackBar(SnackBar(content:Text(m),backgroundColor:Colors.green));}}
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
+import '../../../core/models/file_node.dart';
+import '../../../core/models/project_statistics.dart';
+import '../../../core/services/directory_scanner.dart';
+import '../../../core/services/file_reader.dart';
+import '../../../core/services/search_service.dart';
+import '../../../core/services/app_preferences.dart';
+import '../../export/dialogs/export_project_dialog.dart';
+import '../../export/dialogs/export_tree_dialog.dart';
+
+class ExplorerController extends ChangeNotifier {
+  FileNode? _rootNode, _selectedFileNode;
+  FileReaderResult? _filePreviewResult;
+  ProjectStatistics _statistics = ProjectStatistics.empty();
+  bool _isLoading = false, _isTerminalVisible = false;
+  String? _loadingMessage;
+  String _searchQuery = '';
+  List<FileNode> _searchResults = [];
+  double _terminalHeight = 200;
+  FileNode? get rootNode => _rootNode;
+  FileNode? get selectedFileNode => _selectedFileNode;
+  FileReaderResult? get filePreviewResult => _filePreviewResult;
+  ProjectStatistics get statistics => _statistics;
+  bool get isLoading => _isLoading;
+  String? get loadingMessage => _loadingMessage;
+  String get searchQuery => _searchQuery;
+  List<FileNode> get searchResults => _searchResults;
+  bool get includeHidden => false;
+  bool get isTerminalVisible => _isTerminalVisible;
+  double get terminalHeight => _terminalHeight;
+  String get currentDirectoryPath => _rootNode?.path ?? '';
+  Future<void> pickAndScanDirectory(BuildContext c) async {
+    final prefs = c.read<AppPreferences>();
+    try {
+      final path = await FilePicker.getDirectoryPath();
+      if (path == null) return;
+      _setLoading(true, 'Scanning directory structure…');
+      final r = await DirectoryScanner.scanDirectory(
+        path,
+        includeHidden: prefs.includeHidden,
+        maxDepth: prefs.maxDepth,
+        onProgress: (p) {
+          _loadingMessage = 'Scanning: ${p.split(Platform.pathSeparator).last}';
+          notifyListeners();
+        },
+      );
+      _rootNode = r.rootNode;
+      _statistics = r.stats;
+      _selectedFileNode = null;
+      _filePreviewResult = null;
+      _searchQuery = '';
+      _searchResults = [];
+    } catch (e) {
+      _showError(c, 'Failed to open directory: $e');
+    } finally {
+      _setLoading(false, null);
+    }
+  }
+
+  Future<void> refreshCurrentDirectory(BuildContext c) async {
+    if (_rootNode == null) return;
+    try {
+      _setLoading(true, 'Refreshing directory…');
+      final r = await DirectoryScanner.scanDirectory(
+        _rootNode!.path,
+        includeHidden: c.read<AppPreferences>().includeHidden,
+        maxDepth: c.read<AppPreferences>().maxDepth,
+      );
+      _rootNode = r.rootNode;
+      _statistics = r.stats;
+      _showSuccess(c, 'Directory refreshed');
+    } catch (e) {
+      _showError(c, 'Refresh failed: $e');
+    } finally {
+      _setLoading(false, null);
+    }
+  }
+
+  Future<void> selectFile(FileNode n, BuildContext c) async {
+    if (n.isDirectory) {
+      n.isExpanded = !n.isExpanded;
+      notifyListeners();
+      return;
+    }
+    _selectedFileNode = n;
+    _filePreviewResult = null;
+    _setLoading(true, 'Loading file preview…');
+    try {
+      _filePreviewResult = await FileReader.readFile(n.path);
+    } catch (e) {
+      _filePreviewResult = FileReaderResult(
+        content: '',
+        isBinary: true,
+        isLargeFile: false,
+        lineCount: 0,
+        wordCount: 0,
+        charCount: 0,
+      );
+      _showError(c, 'Unable to read ${n.name}: $e');
+    } finally {
+      _setLoading(false, null);
+    }
+  }
+
+  void updateSearchQuery(String q) {
+    _searchQuery = q;
+    _searchResults = _rootNode == null
+        ? []
+        : SearchService.searchNodes(_rootNode!, q);
+    notifyListeners();
+  }
+
+  void toggleTerminal() {
+    _isTerminalVisible = !_isTerminalVisible;
+    notifyListeners();
+  }
+
+  void updateTerminalHeight(double d) {
+    _terminalHeight = (_terminalHeight - d).clamp(100, 500);
+    notifyListeners();
+  }
+
+  void exportTree(BuildContext c) {
+    if (_rootNode == null) return;
+    showDialog(
+      context: c,
+      builder: (_) => ExportTreeDialog(rootNode: _rootNode!),
+    );
+  }
+
+  void exportProject(BuildContext c) {
+    if (_rootNode == null) return;
+    showDialog(
+      context: c,
+      builder: (_) => ExportProjectDialog(rootNode: _rootNode!),
+    );
+  }
+
+  void _setLoading(bool v, String? m) {
+    _isLoading = v;
+    _loadingMessage = m;
+    notifyListeners();
+  }
+
+  void _showError(BuildContext c, String m) {
+    if (c.mounted)
+      ScaffoldMessenger.of(c).showSnackBar(
+        SnackBar(content: Text(m), backgroundColor: Colors.redAccent),
+      );
+  }
+
+  void _showSuccess(BuildContext c, String m) {
+    if (c.mounted)
+      ScaffoldMessenger.of(
+        c,
+      ).showSnackBar(SnackBar(content: Text(m), backgroundColor: Colors.green));
+  }
+}

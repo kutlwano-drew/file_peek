@@ -1,3 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-class LoadingIndicator extends StatelessWidget{final String? message;final String mode;const LoadingIndicator({super.key,this.message,this.mode='process'});@override Widget build(BuildContext c){final color=Theme.of(c).colorScheme.primary;final widget=mode=='choice'?LoadingAnimationWidget.hexagonDots(color:color,size:42):LoadingAnimationWidget.threeArchedCircle(color:color,size:42);return Center(child:Container(constraints:const BoxConstraints(maxWidth:420),margin:const EdgeInsets.all(24),padding:const EdgeInsets.all(24),decoration:BoxDecoration(color:Theme.of(c).colorScheme.surface.withOpacity(.94),borderRadius:BorderRadius.circular(20),border:Border.all(color:color.withOpacity(.25))),child:Column(mainAxisSize:MainAxisSize.min,children:[widget,const SizedBox(height:18),Text(message??'Working…',textAlign:TextAlign.center,style:const TextStyle(fontWeight:FontWeight.w600))])));}}
+
+class LoadingIndicator extends StatelessWidget {
+  final String? message;
+  final String mode;
+  const LoadingIndicator({super.key, this.message, this.mode = 'process'});
+  @override
+  Widget build(BuildContext c) {
+    final color = Theme.of(c).colorScheme.primary;
+    final widget = mode == 'choice'
+        ? LoadingAnimationWidget.hexagonDots(color: color, size: 42)
+        : LoadingAnimationWidget.threeArchedCircle(color: color, size: 42);
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 420),
+        margin: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(c).colorScheme.surface.withOpacity(.94),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(.25)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            widget,
+            const SizedBox(height: 18),
+            Text(
+              message ?? 'Working…',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,2 +1,30 @@
-import 'package:flutter/material.dart';import 'package:loading_animation_widget/loading_animation_widget.dart';import 'package:flutter_glow/flutter_glow.dart';
-class ExportProgressDialog extends StatelessWidget{final String message;const ExportProgressDialog({super.key,required this.message});@override Widget build(BuildContext c){final cs=Theme.of(c).colorScheme;return AlertDialog(backgroundColor:cs.surface.withOpacity(.7),surfaceTintColor:Colors.transparent,shape:RoundedRectangleBorder(borderRadius:BorderRadius.circular(20)),content:Column(mainAxisSize:MainAxisSize.min,children:[LoadingAnimationWidget.threeArchedCircle(color:cs.primary,size:44),const SizedBox(height:18),GlowText(message,glowColor:cs.primary,blurRadius:0,style:const TextStyle(fontWeight:FontWeight.w600))]));}}
+import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import 'package:flutter_glow/flutter_glow.dart';
+
+class ExportProgressDialog extends StatelessWidget {
+  final String message;
+  const ExportProgressDialog({super.key, required this.message});
+  @override
+  Widget build(BuildContext c) {
+    final cs = Theme.of(c).colorScheme;
+    return AlertDialog(
+      backgroundColor: cs.surface.withOpacity(.7),
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          LoadingAnimationWidget.threeArchedCircle(color: cs.primary, size: 44),
+          const SizedBox(height: 18),
+          GlowText(
+            message,
+            glowColor: cs.primary,
+            blurRadius: 0,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+}

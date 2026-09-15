@@ -34,11 +34,9 @@ dependencies:
   flutter_markdown: ^0.7.7+1
   excel: ^4.0.6
   country_flags: ^4.1.2
-  pdfrx: ^2.4.5
-  office_oxide_ffi: ^0.1.2+1
   flutter_html: ^3.0.0
   syncfusion_flutter_pdf: ^33.2.13
-  docx_file_viewer: ^0.0.7
+  printing: ^5.14.3
 
 dev_dependencies:
   flutter_test:

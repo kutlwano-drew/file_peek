@@ -5,14 +5,13 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   media_kit_libs_linux
   media_kit_video
+  printing
   screen_retriever_linux
-  url_launcher_linux
   window_manager
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
   jni
-  office_oxide_ffi
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

@@ -1,7 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:pdfrx/pdfrx.dart';
+import 'package:printing/printing.dart' as printing;
 
 class PdfPreview extends StatefulWidget {
   const PdfPreview({
@@ -73,6 +74,22 @@ class _PdfPreviewState extends State<PdfPreview> {
     }
   }
 
+  Future<Uint8List> _loadPdf() async {
+    final file = File(widget.path);
+
+    if (!await file.exists()) {
+      throw Exception('The PDF file does not exist.');
+    }
+
+    final bytes = await file.readAsBytes();
+
+    if (bytes.isEmpty) {
+      throw Exception('The PDF file is empty.');
+    }
+
+    return bytes;
+  }
+
   String _cleanError(Object error) {
     final message = error.toString();
 
@@ -81,18 +98,6 @@ class _PdfPreviewState extends State<PdfPreview> {
     }
 
     return message;
-  }
-
-  Widget _buildViewerError(
-    BuildContext context,
-    Object error,
-    StackTrace? stackTrace,
-    PdfDocumentRef documentRef,
-  ) {
-    return _PdfError(
-      message: _cleanError(error),
-      onRetry: _retry,
-    );
   }
 
   void _retry() {
@@ -123,13 +128,13 @@ class _PdfPreviewState extends State<PdfPreview> {
 
     return ColoredBox(
       color: const Color(0xFFE5E7EB),
-      child: PdfViewer.file(
-        widget.path,
-        params: PdfViewerParams(
-          margin: 18,
-          minScale: 1.0,
-          errorBannerBuilder: _buildViewerError,
-        ),
+      child: printing.PdfPreview(
+        build: (_) => _loadPdf(),
+        allowPrinting: false,
+        allowSharing: false,
+        canChangePageFormat: false,
+        canChangeOrientation: false,
+        canDebug: false,
       ),
     );
   }
@@ -259,7 +264,10 @@ class _PdfError extends StatelessWidget {
               const SizedBox(height: 20),
               ElevatedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh, size: 18),
+                icon: const Icon(
+                  Icons.refresh,
+                  size: 18,
+                ),
                 label: const Text('Try again'),
               ),
             ],
