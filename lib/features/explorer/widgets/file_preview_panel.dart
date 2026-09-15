@@ -1,6 +1,7 @@
 import 'package:file_peek/features/explorer/widgets/search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:heroicons/heroicons.dart';
 import 'package:provider/provider.dart';
 
 import '../../../app/theme/app_colors.dart';
@@ -64,7 +65,7 @@ class _FilePreviewPanelState extends State<FilePreviewPanel> {
             type: type,
             content: widget.previewResult?.content,
           ),
-      
+
           Expanded(
             child: _PreviewContent(
               node: node,
@@ -101,11 +102,7 @@ class _PreviewHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 11, 12, 11),
       decoration: const BoxDecoration(
         color: Colors.black,
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white24,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.white24)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -117,11 +114,7 @@ class _PreviewHeader extends StatelessWidget {
               color: Colors.white12,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              _iconForType(type),
-              size: 18,
-              color: Colors.white,
-            ),
+            child: Icon(_iconForType(type), size: 18, color: Colors.white),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -151,9 +144,7 @@ class _PreviewHeader extends StatelessWidget {
                         color: Colors.white12,
                         borderRadius: BorderRadius.circular(5),
                       ),
-                      child: const Text(
-                        '',
-                      ),
+                      child: const Text(''),
                     ),
                   ],
                 ),
@@ -213,9 +204,7 @@ class _PreviewHeader extends StatelessWidget {
 class _CopyButton extends StatelessWidget {
   final String content;
 
-  const _CopyButton({
-    required this.content,
-  });
+  const _CopyButton({required this.content});
 
   @override
   Widget build(BuildContext context) {
@@ -234,16 +223,39 @@ class _CopyButton extends StatelessWidget {
         messenger.hideCurrentSnackBar();
 
         messenger.showSnackBar(
-          const SnackBar(
-            content: Text('File content copied to clipboard.'),
-            duration: Duration(seconds: 2),
+          SnackBar(
+            width: MediaQuery.sizeOf(context).width * 0.5,
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.black,
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            content: Row(
+              children: [
+                const HeroIcon(
+                  HeroIcons.clipboardDocumentCheck,
+                  size: 21,
+                  color: Colors.white,
+                ),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text(
+                    'File content copied to clipboard.',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            duration: const Duration(seconds: 2),
           ),
         );
       },
-      icon: const Icon(
-        Icons.copy_outlined,
-        size: 18,
-      ),
+      icon: const Icon(Icons.copy_outlined, size: 18),
     );
   }
 }
@@ -269,10 +281,39 @@ class _PreviewContent extends StatelessWidget {
     final lower = name.toLowerCase();
     final ext = lower.contains('.') ? lower.split('.').last : '';
     const codeExtensions = {
-      'dart', 'py', 'js', 'jsx', 'ts', 'tsx', 'java', 'kt', 'kts',
-      'swift', 'rb', 'go', 'rs', 'php', 'c', 'h', 'hpp', 'cpp',
-      'cc', 'cs', 'html', 'htm', 'xml', 'css', 'scss', 'json',
-      'yaml', 'yml', 'sql', 'sh', 'bash', 'toml', 'env'
+      'dart',
+      'py',
+      'js',
+      'jsx',
+      'ts',
+      'tsx',
+      'java',
+      'kt',
+      'kts',
+      'swift',
+      'rb',
+      'go',
+      'rs',
+      'php',
+      'c',
+      'h',
+      'hpp',
+      'cpp',
+      'cc',
+      'cs',
+      'html',
+      'htm',
+      'xml',
+      'css',
+      'scss',
+      'json',
+      'yaml',
+      'yml',
+      'sql',
+      'sh',
+      'bash',
+      'toml',
+      'env',
     };
     return codeExtensions.contains(ext);
   }
@@ -295,13 +336,11 @@ class _PreviewContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      final preferences = context.read<AppPreferences>();
+    final preferences = context.read<AppPreferences>();
 
-  switch (type.kind) {
-    case 'document':
-      return DocumentPreview(
-        path: node.path,
-      );
+    switch (type.kind) {
+      case 'document':
+        return DocumentPreview(path: node.path);
 
       case 'image':
         if (node.name.toLowerCase().endsWith('.svg')) {
@@ -459,10 +498,7 @@ class _PreviewError extends StatelessWidget {
   final String message;
   final String details;
 
-  const _PreviewError({
-    required this.message,
-    required this.details,
-  });
+  const _PreviewError({required this.message, required this.details});
 
   @override
   Widget build(BuildContext context) {
@@ -474,19 +510,12 @@ class _PreviewError extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 52,
-              color: theme.colorScheme.error,
-            ),
+            Icon(Icons.error_outline, size: 52, color: theme.colorScheme.error),
             const SizedBox(height: 14),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 8),
             SelectableText(

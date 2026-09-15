@@ -11,8 +11,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/services/app_preferences.dart';
 import '../../../core/widgets/app_dialogs.dart';
 
-class FilePeekAppBar extends StatefulWidget
-    implements PreferredSizeWidget {
+class FilePeekAppBar extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback? onSelectFolder;
   final VoidCallback? onRefresh;
   final VoidCallback? onExportTree;
@@ -42,14 +41,11 @@ class FilePeekAppBar extends StatefulWidget
 }
 
 class _FilePeekAppBarState extends State<FilePeekAppBar> {
-  static const String _emailAddress =
-      'kutlwanodrew.dev@gmail.com';
+  static const String _emailAddress = 'kutlwanodrew.dev@gmail.com';
 
-  static const String _githubUrl =
-      'https://github.com/kutlwano-drew';
+  static const String _githubUrl = 'https://github.com/kutlwano-drew';
 
-  static const String _xUrl =
-      'https://x.com/kutlwano_drew';
+  static const String _xUrl = 'https://x.com/kutlwano_drew';
 
   static const String _tutorialUrl =
       'https://www.youtube.com/playlist?list=PLQtZdlx2Zcog';
@@ -90,16 +86,13 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
   void _scheduleClose() {
     _cancelClose();
 
-    _closeTimer = Timer(
-      const Duration(milliseconds: 180),
-      () {
-        if (!mounted) {
-          return;
-        }
+    _closeTimer = Timer(const Duration(milliseconds: 180), () {
+      if (!mounted) {
+        return;
+      }
 
-        _removeMenu();
-      },
-    );
+      _removeMenu();
+    });
   }
 
   void _removeMenu() {
@@ -200,49 +193,30 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
   Future<void> _openExternal(String target) async {
     try {
       if (Platform.isWindows) {
-        await Process.run(
-          'cmd',
-          ['/c', 'start', '', target],
-          runInShell: true,
-        );
+        await Process.run('cmd', ['/c', 'start', '', target], runInShell: true);
       } else if (Platform.isMacOS) {
-        await Process.run(
-          'open',
-          [target],
-        );
+        await Process.run('open', [target]);
       } else if (Platform.isLinux) {
-        await Process.run(
-          'xdg-open',
-          [target],
-        );
+        await Process.run('xdg-open', [target]);
       }
     } catch (_) {}
   }
 
   Future<void> _copyEmailAddress() async {
-    await Clipboard.setData(
-      const ClipboardData(
-        text: _emailAddress,
-      ),
-    );
+    await Clipboard.setData(const ClipboardData(text: _emailAddress));
 
     _removeMenu();
   }
 
   Future<void> _openEmailClient() async {
-    final mailto = Uri(
-      scheme: 'mailto',
-      path: _emailAddress,
-    ).toString();
+    final mailto = Uri(scheme: 'mailto', path: _emailAddress).toString();
 
     _removeMenu();
 
     await _openExternal(mailto);
   }
 
-  List<_DesktopMenuItem> _fileItems(
-    AppLocalizations l,
-  ) {
+  List<_DesktopMenuItem> _fileItems(AppLocalizations l) {
     return [
       _DesktopMenuItem(
         icon: HeroIcons.folderOpen,
@@ -292,9 +266,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
     ];
   }
 
-  List<_DesktopMenuItem> _viewItems(
-    AppLocalizations l,
-  ) {
+  List<_DesktopMenuItem> _viewItems(AppLocalizations l) {
     return [
       _DesktopMenuItem(
         icon: HeroIcons.arrowPath,
@@ -302,15 +274,20 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
         enabled: widget.canRefresh,
         onTap: () {
           _removeMenu();
-          widget.onRefresh?.call();
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) {
+              return;
+            }
+
+            widget.onRefresh?.call();
+          });
         },
       ),
     ];
   }
 
-  List<_DesktopMenuItem> _toolsItems(
-    AppLocalizations l,
-  ) {
+  List<_DesktopMenuItem> _toolsItems(AppLocalizations l) {
     return [
       _DesktopMenuItem(
         icon: HeroIcons.folderPlus,
@@ -344,16 +321,10 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
 
     return [
       _DesktopMenuItem(
-        icon: isLight
-            ? HeroIcons.sun
-            : HeroIcons.moon,
-        label: isLight
-            ? l.t('light')
-            : l.t('dark'),
+        icon: isLight ? HeroIcons.sun : HeroIcons.moon,
+        label: isLight ? l.t('light') : l.t('dark'),
         onTap: () {
-          preferences.setTheme(
-            isLight ? 'dark' : 'light',
-          );
+          preferences.setTheme(isLight ? 'dark' : 'light');
 
           _removeMenu();
         },
@@ -370,9 +341,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
         onTap: () {
           _removeMenu();
 
-          _openExternal(
-            _tutorialUrl,
-          );
+          _openExternal(_tutorialUrl);
         },
       ),
     ];
@@ -386,9 +355,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
         onTap: () {
           _removeMenu();
 
-          _openExternal(
-            'https://ko-fi.com/kutlwanodrew',
-          );
+          _openExternal('https://ko-fi.com/kutlwanodrew');
         },
       ),
       _DesktopMenuItem(
@@ -401,9 +368,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
             onTap: () {
               _removeMenu();
 
-              _openExternal(
-                _githubUrl,
-              );
+              _openExternal(_githubUrl);
             },
           ),
           _DesktopMenuItem(
@@ -412,9 +377,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
             onTap: () {
               _removeMenu();
 
-              _openExternal(
-                _xUrl,
-              );
+              _openExternal(_xUrl);
             },
           ),
           _DesktopMenuItem(
@@ -438,9 +401,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
     ];
   }
 
-  List<_DesktopMenuItem> _exitItems(
-    AppLocalizations l,
-  ) {
+  List<_DesktopMenuItem> _exitItems(AppLocalizations l) {
     return [
       _DesktopMenuItem(
         icon: HeroIcons.power,
@@ -468,11 +429,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
       return;
     }
 
-    _showMenu(
-      menu: menu,
-      link: link,
-      items: items,
-    );
+    _showMenu(menu: menu, link: link, items: items);
   }
 
   Widget _menuLabel({
@@ -493,11 +450,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
 
           _cancelClose();
 
-          _openMenu(
-            menu: menu,
-            link: link,
-            items: items,
-          );
+          _openMenu(menu: menu, link: link, items: items);
         },
         onExit: (_) {
           if (!mounted) {
@@ -515,11 +468,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
             if (selected) {
               _removeMenu();
             } else {
-              _openMenu(
-                menu: menu,
-                link: link,
-                items: items,
-              );
+              _openMenu(menu: menu, link: link, items: items);
             }
           },
           hoverColor: Colors.lightBlue,
@@ -527,16 +476,13 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
           child: Container(
             height: 40,
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 11,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 11),
             decoration: BoxDecoration(
               color: selected
                   ? Colors.lightBlue
-                  : Theme.of(context).brightness ==
-                          Brightness.light
-                      ? Colors.white
-                      : Colors.transparent,
+                  : Theme.of(context).brightness == Brightness.light
+                  ? Colors.white
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(7),
             ),
             child: Text(
@@ -546,10 +492,9 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
                 fontWeight: FontWeight.w500,
                 color: selected
                     ? Colors.white
-                    : Theme.of(context).brightness ==
-                            Brightness.light
-                        ? Colors.black
-                        : null,
+                    : Theme.of(context).brightness == Brightness.light
+                    ? Colors.black
+                    : null,
               ),
             ),
           ),
@@ -592,10 +537,7 @@ class _FilePeekAppBarState extends State<FilePeekAppBar> {
                 menu: 'settings',
                 label: l.t('settings'),
                 link: _settingsLink,
-                items: _settingsItems(
-                  l,
-                  preferences,
-                ),
+                items: _settingsItems(l, preferences),
               ),
               _menuLabel(
                 menu: 'tutorials',
@@ -636,37 +578,26 @@ class _DesktopDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLight =
-        Theme.of(context).brightness == Brightness.light;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     return Material(
       elevation: 12,
-      color: isLight
-          ? Colors.white
-          : AppColors.surfaceDark.withOpacity(0.97),
+      color: isLight ? Colors.white : AppColors.surfaceDark.withOpacity(0.97),
       borderRadius: BorderRadius.circular(8),
       clipBehavior: Clip.antiAlias,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 210,
-          maxWidth: 310,
-        ),
+        constraints: const BoxConstraints(minWidth: 210, maxWidth: 310),
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            vertical: 5,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 5),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment:
-                CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: items.map((item) {
               if (item.isSeparator) {
                 return Divider(
                   height: 9,
                   thickness: 0.4,
-                  color: isLight
-                      ? Colors.black
-                      : Colors.white24,
+                  color: isLight ? Colors.black : Colors.white24,
                   indent: 10,
                   endIndent: 10,
                 );
@@ -680,10 +611,7 @@ class _DesktopDropdown extends StatelessWidget {
                 );
               }
 
-              return _DesktopMenuRow(
-                item: item,
-                onClose: onClose,
-              );
+              return _DesktopMenuRow(item: item, onClose: onClose);
             }).toList(),
           ),
         ),
@@ -696,24 +624,18 @@ class _DesktopMenuRow extends StatefulWidget {
   final _DesktopMenuItem item;
   final VoidCallback onClose;
 
-  const _DesktopMenuRow({
-    required this.item,
-    required this.onClose,
-  });
+  const _DesktopMenuRow({required this.item, required this.onClose});
 
   @override
-  State<_DesktopMenuRow> createState() =>
-      _DesktopMenuRowState();
+  State<_DesktopMenuRow> createState() => _DesktopMenuRowState();
 }
 
-class _DesktopMenuRowState
-    extends State<_DesktopMenuRow> {
+class _DesktopMenuRowState extends State<_DesktopMenuRow> {
   bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
-    final isLight =
-        Theme.of(context).brightness == Brightness.light;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     final enabled = widget.item.enabled;
     final hovered = enabled && _hovered;
@@ -722,27 +644,25 @@ class _DesktopMenuRowState
     final normalTextColor = !enabled
         ? (isLight ? Colors.black38 : Colors.white38)
         : widget.item.destructive
-            ? Colors.red
-            : isYoutube
-                ? Colors.white
-                : isLight
-                    ? Colors.black
-                    : Colors.white;
+        ? Colors.red
+        : isYoutube
+        ? Colors.white
+        : isLight
+        ? Colors.black
+        : Colors.white;
 
     final normalIconColor = !enabled
         ? (isLight ? Colors.black38 : Colors.white38)
         : widget.item.destructive
-            ? Colors.red
-            : isYoutube
-                ? Colors.white
-                : isLight
-                    ? Colors.black
-                    : Colors.white;
+        ? Colors.red
+        : isYoutube
+        ? Colors.white
+        : isLight
+        ? Colors.black
+        : Colors.white;
 
     return MouseRegion(
-      cursor: enabled
-          ? SystemMouseCursors.click
-          : SystemMouseCursors.basic,
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
       onEnter: (_) {
         if (enabled) {
           setState(() {
@@ -763,24 +683,20 @@ class _DesktopMenuRowState
             : null,
         child: Container(
           height: 42,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 13,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 13),
           decoration: BoxDecoration(
             color: hovered
                 ? Colors.lightBlue
                 : isYoutube
-                    ? Colors.redAccent
-                    : Colors.transparent,
+                ? Colors.redAccent
+                : Colors.transparent,
           ),
           child: Row(
             children: [
               HeroIcon(
                 widget.item.icon,
                 size: 18,
-                color: hovered
-                    ? Colors.white
-                    : normalIconColor,
+                color: hovered ? Colors.white : normalIconColor,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -789,9 +705,7 @@ class _DesktopMenuRowState
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: hovered
-                        ? Colors.white
-                        : normalTextColor,
+                    color: hovered ? Colors.white : normalTextColor,
                   ),
                 ),
               ),
@@ -803,8 +717,8 @@ class _DesktopMenuRowState
                     color: hovered
                         ? Colors.white70
                         : isLight
-                            ? Colors.black38
-                            : Colors.white38,
+                        ? Colors.black38
+                        : Colors.white38,
                   ),
                 ),
             ],
@@ -827,12 +741,10 @@ class _DesktopSubmenuRow extends StatefulWidget {
   });
 
   @override
-  State<_DesktopSubmenuRow> createState() =>
-      _DesktopSubmenuRowState();
+  State<_DesktopSubmenuRow> createState() => _DesktopSubmenuRowState();
 }
 
-class _DesktopSubmenuRowState
-    extends State<_DesktopSubmenuRow> {
+class _DesktopSubmenuRowState extends State<_DesktopSubmenuRow> {
   OverlayEntry? _submenuEntry;
   Timer? _closeTimer;
   bool _hovered = false;
@@ -845,10 +757,7 @@ class _DesktopSubmenuRowState
   void _scheduleClose() {
     _cancelClose();
 
-    _closeTimer = Timer(
-      const Duration(milliseconds: 180),
-      _removeSubmenu,
-    );
+    _closeTimer = Timer(const Duration(milliseconds: 180), _removeSubmenu);
   }
 
   void _removeSubmenu() {
@@ -870,8 +779,7 @@ class _DesktopSubmenuRowState
       return;
     }
 
-    final renderBox =
-        context.findRenderObject() as RenderBox?;
+    final renderBox = context.findRenderObject() as RenderBox?;
 
     final overlay = Overlay.maybeOf(context);
 
@@ -879,8 +787,7 @@ class _DesktopSubmenuRowState
       return;
     }
 
-    final overlayRenderObject =
-        overlay.context.findRenderObject();
+    final overlayRenderObject = overlay.context.findRenderObject();
 
     if (overlayRenderObject == null) {
       return;
@@ -893,22 +800,15 @@ class _DesktopSubmenuRowState
 
     final submenuTop = topLeft.dy;
 
-    final submenuLeft =
-        topLeft.dx +
-        renderBox.size.width +
-        4;
+    final submenuLeft = topLeft.dx + renderBox.size.width + 4;
 
-    final children =
-        widget.item.children ??
-        const <_DesktopMenuItem>[];
+    final children = widget.item.children ?? const <_DesktopMenuItem>[];
 
     late final OverlayEntry entry;
 
     entry = OverlayEntry(
       builder: (context) {
-        final isLight =
-            Theme.of(context).brightness ==
-                Brightness.light;
+        final isLight = Theme.of(context).brightness == Brightness.light;
 
         return Positioned(
           left: submenuLeft,
@@ -926,37 +826,23 @@ class _DesktopSubmenuRowState
               elevation: 12,
               color: isLight
                   ? Colors.white
-                  : AppColors.surfaceDark
-                      .withOpacity(0.97),
-              borderRadius:
-                  BorderRadius.circular(8),
+                  : AppColors.surfaceDark.withOpacity(0.97),
+              borderRadius: BorderRadius.circular(8),
               clipBehavior: Clip.antiAlias,
               child: ConstrainedBox(
-                constraints:
-                    const BoxConstraints(
-                  minWidth: 210,
-                  maxWidth: 310,
-                ),
+                constraints: const BoxConstraints(minWidth: 210, maxWidth: 310),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(
-                    vertical: 5,
-                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 5),
                   child: Column(
-                    mainAxisSize:
-                        MainAxisSize.min,
-                    crossAxisAlignment:
-                        CrossAxisAlignment
-                            .stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       for (final child in children)
                         if (child.isSeparator)
                           Divider(
                             height: 9,
                             thickness: 0.4,
-                            color: isLight
-                                ? Colors.black
-                                : Colors.white24,
+                            color: isLight ? Colors.black : Colors.white24,
                             indent: 10,
                             endIndent: 10,
                           )
@@ -967,8 +853,7 @@ class _DesktopSubmenuRowState
                               _removeSubmenu();
                               widget.onClose();
                             },
-                            onKeepOpen:
-                                _cancelClose,
+                            onKeepOpen: _cancelClose,
                           )
                         else
                           _DesktopMenuRow(
@@ -1002,8 +887,7 @@ class _DesktopSubmenuRowState
 
   @override
   Widget build(BuildContext context) {
-    final isLight =
-        Theme.of(context).brightness == Brightness.light;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -1025,13 +909,9 @@ class _DesktopSubmenuRowState
         onTap: _showSubmenu,
         child: Container(
           height: 42,
-          padding: const EdgeInsets.symmetric(
-            horizontal: 13,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 13),
           decoration: BoxDecoration(
-            color: _hovered
-                ? Colors.lightBlue
-                : Colors.transparent,
+            color: _hovered ? Colors.lightBlue : Colors.transparent,
           ),
           child: Row(
             children: [
@@ -1041,8 +921,8 @@ class _DesktopSubmenuRowState
                 color: _hovered
                     ? Colors.white
                     : isLight
-                        ? Colors.black
-                        : Colors.white,
+                    ? Colors.black
+                    : Colors.white,
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1054,8 +934,8 @@ class _DesktopSubmenuRowState
                     color: _hovered
                         ? Colors.white
                         : isLight
-                            ? Colors.black
-                            : Colors.white,
+                        ? Colors.black
+                        : Colors.white,
                   ),
                 ),
               ),
@@ -1065,8 +945,8 @@ class _DesktopSubmenuRowState
                 color: _hovered
                     ? Colors.white
                     : isLight
-                        ? Colors.black
-                        : Colors.white70,
+                    ? Colors.black
+                    : Colors.white70,
               ),
             ],
           ),
@@ -1100,13 +980,13 @@ class _DesktopMenuItem {
   });
 
   const _DesktopMenuItem.separator()
-      : icon = HeroIcons.minus,
-        label = '',
-        onTap = null,
-        enabled = false,
-        destructive = false,
-        trailingText = null,
-        youtube = false,
-        isSeparator = true,
-        children = null;
+    : icon = HeroIcons.minus,
+      label = '',
+      onTap = null,
+      enabled = false,
+      destructive = false,
+      trailingText = null,
+      youtube = false,
+      isSeparator = true,
+      children = null;
 }

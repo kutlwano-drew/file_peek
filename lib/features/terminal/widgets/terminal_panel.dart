@@ -27,10 +27,7 @@ class TerminalPanel extends StatelessWidget {
             color: AppColors.terminalBackground,
             child: Column(
               children: [
-                TerminalToolbar(
-                  onClear: controller.clearLog,
-                  onClose: onClose,
-                ),
+                TerminalToolbar(onClear: controller.clearLog, onClose: onClose),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.sm),
@@ -50,29 +47,58 @@ class TerminalPanel extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.xs,
+                  ),
                   color: AppColors.surfaceDark,
                   child: Row(
                     children: [
-                      const Text('\$', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      const Text(
+                        '\$',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: TextField(
                           controller: textController,
-                          style: const TextStyle(fontFamily: 'monospace', fontSize: 11, color: AppColors.textPrimary),
+                          style: const TextStyle(
+                            fontFamily: 'monospace',
+                            fontSize: 11,
+                            color: AppColors.textPrimary,
+                          ),
                           decoration: const InputDecoration(
-                            hintText: 'Type command (e.g., git status, npm test)...',
-                            hintStyle: TextStyle(color: AppColors.textMuted, fontSize: 11),
+                            hintText:
+                                'Type command (e.g., git status, npm test)...',
+                            hintStyle: TextStyle(
+                              color: AppColors.textMuted,
+                              fontSize: 11,
+                            ),
                             border: InputBorder.none,
                             isDense: true,
                           ),
                           onSubmitted: (value) {
                             if (currentDirectory.isNotEmpty) {
-                              controller.executeCommand(value, currentDirectory);
+                              controller.executeCommand(
+                                value,
+                                currentDirectory,
+                              );
                               textController.clear();
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Please select a directory first'), backgroundColor: Colors.red),
+                                const SnackBar(
+                                  content: const Text(
+                                    'Please select a directory first',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
                               );
                             }
                           },
@@ -82,7 +108,10 @@ class TerminalPanel extends StatelessWidget {
                         const SizedBox(
                           width: 12,
                           height: 12,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primary),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.primary,
+                          ),
                         ),
                     ],
                   ),

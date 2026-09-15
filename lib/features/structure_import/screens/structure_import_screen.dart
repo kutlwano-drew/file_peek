@@ -48,9 +48,7 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
 
     String name = lines.first;
 
-    name = name
-        .replaceFirst(RegExp(r'^[│├└─\|+\-\s]+'), '')
-        .trim();
+    name = name.replaceFirst(RegExp(r'^[│├└─\|+\-\s]+'), '').trim();
 
     if (name.endsWith('/')) {
       name = name.substring(0, name.length - 1);
@@ -93,18 +91,14 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
       SnackBar(
         content: Row(
           children: [
-            Icon(
-              icon,
-              size: 18,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 10),
+            Icon(icon, size: 21, color: Colors.white),
+            const SizedBox(width: 12),
             Expanded(
               child: Text(
                 message,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 12,
+                  fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -113,14 +107,9 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
         ),
         backgroundColor: backgroundColor,
         behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.only(
-          bottom: 22,
-          left: screenWidth * 0.22,
-          right: screenWidth * 0.22,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        width: screenWidth * 0.5,
+        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -140,9 +129,7 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 480,
-            ),
+            constraints: const BoxConstraints(maxWidth: 480),
             child: Padding(
               padding: const EdgeInsets.all(28),
               child: Column(
@@ -203,9 +190,7 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
                         onPressed: () => Navigator.pop(context, false),
                         child: const Text(
                           'Cancel',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                          ),
+                          style: TextStyle(color: AppColors.textSecondary),
                         ),
                       ),
                       const SizedBox(width: 10),
@@ -225,9 +210,7 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
                         ),
                         child: const Text(
                           'Choose File',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],
@@ -297,9 +280,7 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
     final File file = File(path);
     final List<int> bytes = await file.readAsBytes();
 
-    final PdfDocument document = PdfDocument(
-      inputBytes: bytes,
-    );
+    final PdfDocument document = PdfDocument(inputBytes: bytes);
 
     final String text = PdfTextExtractor(document).extractText();
 
@@ -325,8 +306,7 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
       return;
     }
 
-    final String? selectedDirectory =
-        await FilePicker.getDirectoryPath(
+    final String? selectedDirectory = await FilePicker.getDirectoryPath(
       dialogTitle: 'Please select project folder',
     );
 
@@ -439,16 +419,9 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
             borderRadius: BorderRadius.circular(22),
           ),
           child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 460,
-            ),
+            constraints: const BoxConstraints(maxWidth: 460),
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                28,
-                30,
-                28,
-                26,
-              ),
+              padding: const EdgeInsets.fromLTRB(28, 30, 28, 26),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -508,9 +481,7 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
                             ),
                             child: const Text(
                               'Dismiss',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
@@ -538,9 +509,7 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
                             child: const Text(
                               'Open Item Location',
                               textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
@@ -559,20 +528,11 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
   Future<void> _openItemLocation(String path) async {
     try {
       if (Platform.isLinux) {
-        await Process.run(
-          'xdg-open',
-          [path],
-        );
+        await Process.run('xdg-open', [path]);
       } else if (Platform.isMacOS) {
-        await Process.run(
-          'open',
-          [path],
-        );
+        await Process.run('open', [path]);
       } else if (Platform.isWindows) {
-        await Process.run(
-          'explorer.exe',
-          [path],
-        );
+        await Process.run('explorer.exe', [path]);
       }
     } catch (e) {
       if (!mounted) return;
@@ -606,14 +566,9 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
           padding: const EdgeInsets.only(left: 12),
           child: IconButton(
             tooltip: 'Back',
-            icon: const Icon(
-              Icons.arrow_back_rounded,
-              size: 20,
-            ),
+            icon: const Icon(Icons.arrow_back_rounded, size: 20),
             color: AppColors.textSecondary,
-            onPressed: _isProcessing
-                ? null
-                : () => context.go('/'),
+            onPressed: _isProcessing ? null : () => context.go('/'),
           ),
         ),
         title: const Text(
@@ -626,80 +581,65 @@ class _StructureImportScreenState extends State<StructureImportScreen> {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          24,
-          8,
-          24,
-          22,
-        ),
+        padding: const EdgeInsets.fromLTRB(24, 8, 24, 22),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _Header(
-              hasStructure: hasStructure,
-              hasTarget: hasTarget,
-            ),
+            _Header(hasStructure: hasStructure, hasTarget: hasTarget),
 
             const SizedBox(height: 18),
 
-       Expanded(
-  child: Container(
-    width: double.infinity,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      border: Border.all(
-        color: AppColors.borderDark,
-      ),
-    ),
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: TextField(
-        controller: _textController,
-        maxLines: null,
-        expands: true,
-        enabled: !_isProcessing,
-        textAlignVertical: TextAlignVertical.top,
-        onChanged: (_) {
-          setState(() {});
-        },
-        style: const TextStyle(
-          fontFamily: 'DejaVu Sans Mono',
-          fontSize: 13,
-          height: 1.6,
-          color: Colors.black,
-        ),
-        cursorColor: AppColors.primary,
-        decoration: const InputDecoration(
-          filled: true,
-          fillColor: Colors.white,
-          hintText:
-              'Paste your project structure here...\n\n'
-              'my_project/\n'
-              '├── lib/\n'
-              '│   └── main.dart\n'
-              '└── pubspec.yaml',
-          hintStyle: TextStyle(
-            fontFamily: 'DejaVu Sans Mono',
-            fontSize: 13,
-            height: 1.6,
-            color: Colors.grey,
-          ),
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
-          disabledBorder: InputBorder.none,
-          contentPadding: EdgeInsets.fromLTRB(
-            22,
-            20,
-            22,
-            20,
-          ),
-        ),
-      ),
-    ),
-  ),
-),
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderDark),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: TextField(
+                    controller: _textController,
+                    maxLines: null,
+                    expands: true,
+                    enabled: !_isProcessing,
+                    textAlignVertical: TextAlignVertical.top,
+                    onChanged: (_) {
+                      setState(() {});
+                    },
+                    style: const TextStyle(
+                      fontFamily: 'DejaVu Sans Mono',
+                      fontSize: 13,
+                      height: 1.6,
+                      color: Colors.black,
+                    ),
+                    cursorColor: AppColors.primary,
+                    decoration: const InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText:
+                          'Paste your project structure here...\n\n'
+                          'my_project/\n'
+                          '├── lib/\n'
+                          '│   └── main.dart\n'
+                          '└── pubspec.yaml',
+                      hintStyle: TextStyle(
+                        fontFamily: 'DejaVu Sans Mono',
+                        fontSize: 13,
+                        height: 1.6,
+                        color: Colors.grey,
+                      ),
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      contentPadding: EdgeInsets.fromLTRB(22, 20, 22, 20),
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 14),
 
@@ -762,10 +702,7 @@ class _Header extends StatelessWidget {
   final bool hasStructure;
   final bool hasTarget;
 
-  const _Header({
-    required this.hasStructure,
-    required this.hasTarget,
-  });
+  const _Header({required this.hasStructure, required this.hasTarget});
 
   @override
   Widget build(BuildContext context) {
@@ -778,8 +715,7 @@ class _Header extends StatelessWidget {
       message =
           'Structure ready. Choose where you want File Peek to create the project.';
     } else {
-      message =
-          'Everything is ready. Create the project folder on disk.';
+      message = 'Everything is ready. Create the project folder on disk.';
     }
 
     return Column(
@@ -796,10 +732,7 @@ class _Header extends StatelessWidget {
         const SizedBox(height: 5),
         Text(
           'Supports ASCII trees and indented folder structures.',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 11,
-          ),
+          style: TextStyle(color: Colors.white, fontSize: 11),
         ),
       ],
     );
@@ -814,25 +747,17 @@ class _TargetLocation extends StatelessWidget {
   final String path;
   final VoidCallback? onClear;
 
-  const _TargetLocation({
-    required this.path,
-    required this.onClear,
-  });
+  const _TargetLocation({required this.path, required this.onClear});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 11,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
         color: const Color(0xFF182433),
         borderRadius: BorderRadius.circular(11),
-        border: Border.all(
-          color: const Color(0xFF2D5E8C),
-        ),
+        border: Border.all(color: const Color(0xFF2D5E8C)),
       ),
       child: Row(
         children: [
@@ -909,58 +834,40 @@ class _ActionBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-       TextButton(
-  onPressed: isProcessing ? null : onCancel,
-  style: TextButton.styleFrom(
-    backgroundColor: Colors.redAccent,
-    foregroundColor: Colors.white,
-    padding: const EdgeInsets.symmetric(
-      horizontal: 12,
-      vertical: 13,
-    ),
-  ),
-  child: const Text(
-    'Cancel',
-    style: TextStyle(
-      color: Colors.white,
-    ),
-  ),
-),
+        TextButton(
+          onPressed: isProcessing ? null : onCancel,
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.redAccent,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+          ),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white)),
+        ),
         const Spacer(),
-    OutlinedButton.icon(
-  onPressed: isProcessing ? null : onImport,
-  style: OutlinedButton.styleFrom(
-    backgroundColor: AppColors.primary,
-    foregroundColor: Colors.white,
-    side: BorderSide(
-      color: AppColors.primary,
-    ),
-    padding: const EdgeInsets.symmetric(
-      horizontal: 16,
-      vertical: 13,
-    ),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(11),
-    ),
-  ),
-  icon: const HeroIcon(
-    HeroIcons.arrowUpTray,
-    size: 18,
-    color: Colors.white,
-  ),
-  label: const Text(
-    'Import File',
-    style: TextStyle(
-      color: Colors.white,
-      fontWeight: FontWeight.w600,
-    ),
-  ),
-),
+        OutlinedButton.icon(
+          onPressed: isProcessing ? null : onImport,
+          style: OutlinedButton.styleFrom(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            side: BorderSide(color: AppColors.primary),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(11),
+            ),
+          ),
+          icon: const HeroIcon(
+            HeroIcons.arrowUpTray,
+            size: 18,
+            color: Colors.white,
+          ),
+          label: const Text(
+            'Import File',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
+        ),
         const SizedBox(width: 10),
         ElevatedButton.icon(
-          onPressed: isProcessing || !hasStructure
-              ? null
-              : onGenerate,
+          onPressed: isProcessing || !hasStructure ? null : onGenerate,
           style: ElevatedButton.styleFrom(
             backgroundColor: hasTarget
                 ? const Color(0xFF327BC4)
@@ -969,10 +876,7 @@ class _ActionBar extends StatelessWidget {
             disabledBackgroundColor: AppColors.borderDark,
             disabledForegroundColor: AppColors.textMuted,
             elevation: 0,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 13,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(11),
             ),
@@ -996,11 +900,9 @@ class _ActionBar extends StatelessWidget {
             isProcessing
                 ? 'Creating Project Folder...'
                 : hasTarget
-                    ? 'Create Project Folder'
-                    : 'Choose Project Location',
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
+                ? 'Create Project Folder'
+                : 'Choose Project Location',
+            style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
       ],
@@ -1016,20 +918,13 @@ class _GuidelineRow extends StatelessWidget {
   final IconData icon;
   final String text;
 
-  const _GuidelineRow({
-    required this.icon,
-    required this.text,
-  });
+  const _GuidelineRow({required this.icon, required this.text});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          size: 16,
-          color: AppColors.textMuted,
-        ),
+        Icon(icon, size: 16, color: AppColors.textMuted),
         const SizedBox(width: 9),
         Expanded(
           child: Text(

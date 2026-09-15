@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:heroicons/heroicons.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/file_node.dart';
 import '../../../core/models/project_statistics.dart';
@@ -146,16 +147,128 @@ class ExplorerController extends ChangeNotifier {
   }
 
   void _showError(BuildContext c, String m) {
-    if (c.mounted)
-      ScaffoldMessenger.of(c).showSnackBar(
-        SnackBar(content: Text(m), backgroundColor: Colors.redAccent),
+    if (!c.mounted) {
+      return;
+    }
+
+    final message = _friendlyMessage(m);
+
+    final width = MediaQuery.sizeOf(c).width * 0.5;
+
+    ScaffoldMessenger.of(c)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          width: width,
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.redAccent,
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const HeroIcon(
+                HeroIcons.exclamationCircle,
+                size: 21,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
   }
 
   void _showSuccess(BuildContext c, String m) {
-    if (c.mounted)
-      ScaffoldMessenger.of(
-        c,
-      ).showSnackBar(SnackBar(content: Text(m), backgroundColor: Colors.green));
+    if (!c.mounted) {
+      return;
+    }
+
+    final message = _friendlyMessage(m);
+
+    final width = MediaQuery.sizeOf(c).width * 0.5;
+
+    ScaffoldMessenger.of(c)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          width: width,
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.green,
+          elevation: 8,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const HeroIcon(
+                HeroIcons.checkCircle,
+                size: 21,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+  }
+
+  String _friendlyMessage(String message) {
+    final value = message.trim();
+
+    switch (value) {
+      case 'No folder selected':
+        return 'Please select a folder first.';
+
+      case 'No file selected':
+        return 'Please select a file first.';
+
+      case 'No active folder':
+        return 'Please open a folder first.';
+
+      case 'Folder does not exist':
+        return 'That folder could not be found.';
+
+      case 'File does not exist':
+        return 'That file could not be found.';
+
+      case 'Permission denied':
+        return 'File Peek does not have permission to access this location.';
+
+      case 'Failed to refresh':
+        return 'The folder could not be refreshed. Please try again.';
+
+      case 'Failed to export':
+        return 'The export could not be completed. Please try again.';
+
+      case 'Failed to import':
+        return 'The structure could not be imported. Please check the file and try again.';
+
+      default:
+        return value;
+    }
   }
 }

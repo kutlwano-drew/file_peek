@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:heroicons/heroicons.dart';
 
 import '../../../core/models/file_node.dart';
 import '../../../core/services/clipboard_service.dart';
@@ -27,17 +27,10 @@ class PreviewToolbar extends StatelessWidget {
     const foregroundColor = Colors.white;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 8,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: const BoxDecoration(
         color: backgroundColor,
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.white24,
-          ),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.white24)),
       ),
       child: Row(
         children: [
@@ -55,10 +48,7 @@ class PreviewToolbar extends StatelessWidget {
           Flexible(
             child: Text(
               selectedNode!.path,
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 11,
-              ),
+              style: const TextStyle(color: Colors.white70, fontSize: 11),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -68,27 +58,47 @@ class PreviewToolbar extends StatelessWidget {
             onPressed: fileContent == null
                 ? null
                 : () async {
-                    final ok =
-                        await ClipboardService.copyToClipboard(
+                    final ok = await ClipboardService.copyToClipboard(
                       fileContent!,
                     );
 
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text(
-                            ok ? 'Copied' : 'Copy failed',
+                          width: MediaQuery.sizeOf(context).width * 0.5,
+                          behavior: SnackBarBehavior.floating,
+                          backgroundColor: ok ? Colors.green : Colors.redAccent,
+                          elevation: 8,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                          backgroundColor:
-                              ok ? Colors.green : Colors.redAccent,
+                          content: Row(
+                            children: [
+                              HeroIcon(
+                                ok
+                                    ? HeroIcons.checkCircle
+                                    : HeroIcons.exclamationCircle,
+                                size: 21,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  ok ? 'Copied' : 'Copy failed',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }
                   },
-            icon: const Icon(
-              Icons.copy,
-              size: 18,
-            ),
+            icon: const Icon(Icons.copy, size: 18),
           ),
         ],
       ),
