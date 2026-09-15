@@ -74,19 +74,19 @@ Preview files written in popular programming languages such as **Dart, Python, J
 
 ### Main Screen
 
-![File Peek main screen](MAIN_SCREEN_URL)
+![File Peek main screen](https://github.com/kutlwano-drew/file_peek/blob/main/assets/images/main_screen.png)
 
 ### Directory Tree
 
-![File Peek directory tree](TREE_SCREEN_URL)
+![File Peek directory tree](https://github.com/kutlwano-drew/file_peek/blob/main/assets/images/tree_demo.png)
 
 ### Code Preview
 
-![File Peek code preview](CODE_PREVIEW_URL)
+![File Peek code preview](https://github.com/kutlwano-drew/file_peek/blob/main/assets/images/code_demo.png)
 
-### PNG and Video Preview
+### Media Preview
 
-![File Peek PNG and video preview](MEDIA_PREVIEW_URL)
+![File Peek PNG and video preview](https://github.com/kutlwano-drew/file_peek/blob/main/assets/images/media_demo.png)
 
 ## Platforms
 
